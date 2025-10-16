@@ -1,18 +1,34 @@
-import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable, Alert } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
-import { LayoutDashboard, Package, CheckCircle, TrendingUp, LogOut } from 'lucide-react-native';
+import { LayoutDashboard, Package, CheckCircle, TrendingUp, LogOut, User } from 'lucide-react-native';
 import { useJackets } from '@/contexts/JacketContext';
 import { useAuth } from '@/contexts/AuthContext';
 import Colors from '@/constants/colors';
 
 export default function DashboardScreen() {
   const { stats, isLoading } = useJackets();
-  const { logout, isAuthenticated } = useAuth();
+  const { logout, user } = useAuth();
   const router = useRouter();
 
   const handleLogout = async () => {
-    await logout();
-    router.replace('/login');
+    Alert.alert(
+      'Déconnexion',
+      'Voulez-vous vraiment vous déconnecter ?',
+      [
+        {
+          text: 'Annuler',
+          style: 'cancel'
+        },
+        {
+          text: 'Se déconnecter',
+          style: 'destructive',
+          onPress: async () => {
+            await logout();
+            router.replace('/login');
+          }
+        }
+      ]
+    );
   };
 
   if (isLoading) {
@@ -44,8 +60,29 @@ export default function DashboardScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>
-          <Text style={styles.title}>Tableau de bord</Text>
-          <Text style={styles.subtitle}>Vue d'ensemble de votre vestiaire</Text>
+          <View style={styles.headerTop}>
+            <View>
+              <Text style={styles.title}>Tableau de bord</Text>
+              <Text style={styles.subtitle}>Vue d'ensemble de votre vestiaire</Text>
+            </View>
+          </View>
+          
+          <View style={styles.userCard}>
+            <View style={styles.userIcon}>
+              <User size={20} color={Colors.dark.primary} />
+            </View>
+            <View style={styles.userInfo}>
+              <Text style={styles.userName}>{user?.username}</Text>
+              <Text style={styles.userEmail}>{user?.email}</Text>
+            </View>
+            <Pressable 
+              onPress={handleLogout}
+              style={({ pressed }) => [styles.logoutButton, pressed && styles.logoutButtonPressed]}
+            >
+              <LogOut size={20} color={Colors.dark.error} />
+              <Text style={styles.logoutText}>Déconnexion</Text>
+            </Pressable>
+          </View>
         </View>
 
         <View style={styles.statsGrid}>
@@ -148,6 +185,12 @@ const styles = StyleSheet.create({
   header: {
     marginBottom: 24,
   },
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 16,
+  },
   title: {
     fontSize: 32,
     fontWeight: '700' as const,
@@ -157,6 +200,54 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 16,
     color: Colors.dark.textSecondary,
+  },
+  userCard: {
+    backgroundColor: Colors.dark.card,
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: Colors.dark.border,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  userIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: Colors.dark.primary + '20',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  userInfo: {
+    flex: 1,
+  },
+  userName: {
+    fontSize: 16,
+    fontWeight: '600' as const,
+    color: Colors.dark.text,
+    marginBottom: 2,
+  },
+  userEmail: {
+    fontSize: 14,
+    color: Colors.dark.textSecondary,
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: Colors.dark.error + '15',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  logoutButtonPressed: {
+    opacity: 0.7,
+  },
+  logoutText: {
+    fontSize: 14,
+    fontWeight: '600' as const,
+    color: Colors.dark.error,
   },
   statsGrid: {
     flexDirection: 'row',
