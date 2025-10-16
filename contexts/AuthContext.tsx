@@ -13,6 +13,7 @@ interface User {
 const VALID_USERS = [
   { username: 'admin', password: 'admin123', email: 'admin@myjacket.com' },
   { username: 'vestiaire', password: 'vestiaire123', email: 'vestiaire@myjacket.com' },
+  { username: 'seb', password: 'seb123', email: 'seb@gmail.com' },
 ];
 
 export const [AuthProvider, useAuth] = createContextHook(() => {
