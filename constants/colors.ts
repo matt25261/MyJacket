@@ -1,0 +1,20 @@
+export default {
+  dark: {
+    background: '#0A0A0A',
+    card: '#1A1A1A',
+    cardHover: '#252525',
+    border: '#2A2A2A',
+    text: '#FFFFFF',
+    textSecondary: '#A0A0A0',
+    textTertiary: '#6B6B6B',
+    primary: '#8B5CF6',
+    primaryDark: '#7C3AED',
+    secondary: '#3B82F6',
+    success: '#10B981',
+    warning: '#F59E0B',
+    error: '#EF4444',
+    tint: '#8B5CF6',
+    tabIconDefault: '#6B6B6B',
+    tabIconSelected: '#8B5CF6',
+  },
+};
