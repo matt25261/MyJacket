@@ -31,13 +31,20 @@ interface WeeklyStats {
   departures: number;
   peakDay: string;
   peakCount: number;
+  dailyBreakdown: DailyStats[];
 }
 
 type ViewMode = 'day' | 'week';
 
+interface SelectedWeek {
+  weekStart: string;
+  weekEnd: string;
+}
+
 export default function StatisticsScreen() {
   const { jackets } = useJackets();
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [selectedWeek, setSelectedWeek] = useState<SelectedWeek | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('day');
 
   const getHourlyStats = useCallback((date: string): HourlyStats[] => {
@@ -155,6 +162,7 @@ export default function StatisticsScreen() {
           departures: 0,
           peakDay: '',
           peakCount: 0,
+          dailyBreakdown: [],
         });
       }
 
@@ -181,6 +189,7 @@ export default function StatisticsScreen() {
             departures: 1,
             peakDay: '',
             peakCount: 0,
+            dailyBreakdown: [],
           });
         }
       }
@@ -192,6 +201,10 @@ export default function StatisticsScreen() {
         const dayWeekKey = getWeekKey(date);
         return dayWeekKey === weekStats.weekStart;
       });
+
+      weekStats.dailyBreakdown = dailyStatsInWeek.sort(
+        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+      );
 
       if (dailyStatsInWeek.length > 0) {
         const peak = dailyStatsInWeek.reduce((max, curr) => {
@@ -237,6 +250,135 @@ export default function StatisticsScreen() {
       1
     );
   }, [selectedDateStats]);
+
+  if (selectedWeek) {
+    const weekData = weeklyStats.find(
+      (w) => w.weekStart === selectedWeek.weekStart && w.weekEnd === selectedWeek.weekEnd
+    );
+
+    if (!weekData) {
+      return null;
+    }
+
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity
+            onPress={() => setSelectedWeek(null)}
+            style={styles.backButton}
+          >
+            <ArrowLeft size={24} color={Colors.dark.text} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Détails de la semaine</Text>
+        </View>
+
+        <ScrollView style={styles.content}>
+          <View style={styles.dateCard}>
+            <Text style={styles.dateTitle}>
+              {formatWeekRange(weekData.weekStart, weekData.weekEnd)}
+            </Text>
+            <View style={styles.statsRow}>
+              <View style={styles.statItem}>
+                <Text style={[styles.statValue, { color: Colors.dark.success }]}>
+                  {weekData.arrivals}
+                </Text>
+                <Text style={styles.statLabel}>Arrivées</Text>
+              </View>
+              <View style={styles.statItem}>
+                <Text style={[styles.statValue, { color: Colors.dark.error }]}>
+                  {weekData.departures}
+                </Text>
+                <Text style={styles.statLabel}>Départs</Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.chartContainer}>
+            <Text style={styles.chartTitle}>Récapitulatif par jour</Text>
+            {weekData.dailyBreakdown.length === 0 ? (
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyText}>
+                  Aucune donnée disponible pour cette semaine
+                </Text>
+              </View>
+            ) : (
+              weekData.dailyBreakdown.map((dayStats) => {
+                const total = dayStats.arrivals + dayStats.departures;
+                const maxTotal = Math.max(
+                  ...weekData.dailyBreakdown.map((d) => d.arrivals + d.departures),
+                  1
+                );
+
+                return (
+                  <TouchableOpacity
+                    key={dayStats.date}
+                    style={styles.weekDayCard}
+                    onPress={() => {
+                      setSelectedWeek(null);
+                      setSelectedDate(dayStats.date);
+                    }}
+                  >
+                    <View style={styles.weekDayHeader}>
+                      <Text style={styles.weekDayName}>
+                        {new Date(dayStats.date).toLocaleDateString('fr-FR', {
+                          weekday: 'long',
+                          day: 'numeric',
+                          month: 'short',
+                        })}
+                      </Text>
+                      {weekData.peakDay === dayStats.date && (
+                        <View style={styles.peakBadge}>
+                          <Text style={styles.peakBadgeText}>Pic</Text>
+                        </View>
+                      )}
+                    </View>
+
+                    <View style={styles.weekDayStats}>
+                      <View style={styles.weekDayStatRow}>
+                        <View style={styles.weekDayStatLeft}>
+                          <View
+                            style={[
+                              styles.statIndicator,
+                              { backgroundColor: Colors.dark.success },
+                            ]}
+                          />
+                          <Text style={styles.weekDayStatLabel}>Arrivées</Text>
+                        </View>
+                        <Text style={styles.weekDayStatValue}>{dayStats.arrivals}</Text>
+                      </View>
+                      <View style={styles.weekDayStatRow}>
+                        <View style={styles.weekDayStatLeft}>
+                          <View
+                            style={[
+                              styles.statIndicator,
+                              { backgroundColor: Colors.dark.error },
+                            ]}
+                          />
+                          <Text style={styles.weekDayStatLabel}>Départs</Text>
+                        </View>
+                        <Text style={styles.weekDayStatValue}>{dayStats.departures}</Text>
+                      </View>
+                    </View>
+
+                    <View style={styles.activityBar}>
+                      <View
+                        style={[
+                          styles.activityFill,
+                          {
+                            width: `${(total / maxTotal) * 100}%`,
+                          },
+                        ]}
+                      />
+                    </View>
+                  </TouchableOpacity>
+                );
+              })
+            )}
+          </View>
+        </ScrollView>
+      </View>
+    );
+  }
 
   if (selectedDate && selectedDateStats) {
     return (
@@ -413,7 +555,11 @@ export default function StatisticsScreen() {
               </View>
             ) : (
               weeklyStats.map((stats) => (
-                <View key={stats.weekStart} style={styles.weekCard}>
+                <TouchableOpacity
+                  key={stats.weekStart}
+                  style={styles.weekCard}
+                  onPress={() => setSelectedWeek({ weekStart: stats.weekStart, weekEnd: stats.weekEnd })}
+                >
                   <View style={styles.weekHeader}>
                     <Text style={styles.weekDate}>{formatWeekRange(stats.weekStart, stats.weekEnd)}</Text>
                     {stats.peakDay && (
@@ -458,7 +604,7 @@ export default function StatisticsScreen() {
                       ]}
                     />
                   </View>
-                </View>
+                </TouchableOpacity>
               ))
             )}
           </View>
@@ -721,5 +867,59 @@ const styles = StyleSheet.create({
   weekStatValue: {
     fontSize: 24,
     fontWeight: '700' as const,
+  },
+  weekDayCard: {
+    backgroundColor: Colors.dark.cardHover,
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: Colors.dark.border,
+  },
+  weekDayHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  weekDayName: {
+    fontSize: 14,
+    fontWeight: '600' as const,
+    color: Colors.dark.text,
+    textTransform: 'capitalize',
+  },
+  peakBadge: {
+    backgroundColor: Colors.dark.primary,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  peakBadgeText: {
+    fontSize: 11,
+    fontWeight: '600' as const,
+    color: Colors.dark.text,
+  },
+  weekDayStats: {
+    gap: 4,
+    marginBottom: 8,
+  },
+  weekDayStatRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  weekDayStatLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  weekDayStatLabel: {
+    fontSize: 12,
+    color: Colors.dark.textSecondary,
+  },
+  weekDayStatValue: {
+    fontSize: 14,
+    fontWeight: '600' as const,
+    color: Colors.dark.text,
   },
 });
