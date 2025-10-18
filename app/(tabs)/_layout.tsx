@@ -1,5 +1,5 @@
 import { Tabs, useRouter } from "expo-router";
-import { LayoutDashboard, Package, ScanLine, List, Search } from "lucide-react-native";
+import { LayoutDashboard, Package, ScanLine, List, Search, BarChart3 } from "lucide-react-native";
 import React, { useEffect } from "react";
 import { View, ActivityIndicator, StyleSheet } from "react-native";
 
@@ -80,6 +80,13 @@ export default function TabLayout() {
         options={{
           title: "Liste",
           tabBarIcon: ({ color }) => <List size={24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="statistics"
+        options={{
+          title: "Statistiques",
+          tabBarIcon: ({ color }) => <BarChart3 size={24} color={color} />,
         }}
       />
     </Tabs>
