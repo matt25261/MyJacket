@@ -1,26 +1,30 @@
 import { View, Text, StyleSheet, ScrollView, Pressable, Alert } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
-import { LayoutDashboard, Package, CheckCircle, TrendingUp, LogOut, User } from 'lucide-react-native';
+import { LayoutDashboard, Package, CheckCircle, TrendingUp, LogOut, User, Languages } from 'lucide-react-native';
 import { useJackets } from '@/contexts/JacketContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useTranslations } from '@/constants/translations';
 import Colors from '@/constants/colors';
 
 export default function DashboardScreen() {
   const { stats, isLoading } = useJackets();
   const { logout, user } = useAuth();
+  const { language, changeLanguage } = useLanguage();
+  const t = useTranslations(language);
   const router = useRouter();
 
   const handleLogout = async () => {
     Alert.alert(
-      'Déconnexion',
-      'Voulez-vous vraiment vous déconnecter ?',
+      t.auth.logout,
+      t.auth.logoutConfirm,
       [
         {
-          text: 'Annuler',
+          text: t.common.cancel,
           style: 'cancel'
         },
         {
-          text: 'Se déconnecter',
+          text: t.auth.logout,
           style: 'destructive',
           onPress: async () => {
             await logout();
@@ -31,12 +35,33 @@ export default function DashboardScreen() {
     );
   };
 
+  const handleLanguageChange = () => {
+    Alert.alert(
+      t.settings.language,
+      t.settings.selectLanguage,
+      [
+        {
+          text: t.settings.french,
+          onPress: () => changeLanguage('fr'),
+        },
+        {
+          text: t.settings.english,
+          onPress: () => changeLanguage('en'),
+        },
+        {
+          text: t.common.cancel,
+          style: 'cancel',
+        }
+      ]
+    );
+  };
+
   if (isLoading) {
     return (
       <View style={styles.container}>
         <Stack.Screen options={{ title: 'MyJacket' }} />
         <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Chargement...</Text>
+          <Text style={styles.loadingText}>{t.common.loading}</Text>
         </View>
       </View>
     );
@@ -48,9 +73,14 @@ export default function DashboardScreen() {
         options={{ 
           title: 'MyJacket',
           headerRight: () => (
-            <Pressable onPress={handleLogout} style={{ marginRight: 16 }}>
-              <LogOut size={24} color={Colors.dark.text} />
-            </Pressable>
+            <View style={{ flexDirection: 'row', gap: 16, marginRight: 16 }}>
+              <Pressable onPress={handleLanguageChange}>
+                <Languages size={24} color={Colors.dark.text} />
+              </Pressable>
+              <Pressable onPress={handleLogout}>
+                <LogOut size={24} color={Colors.dark.text} />
+              </Pressable>
+            </View>
           ),
         }} 
       />
@@ -62,8 +92,8 @@ export default function DashboardScreen() {
         <View style={styles.header}>
           <View style={styles.headerTop}>
             <View>
-              <Text style={styles.title}>Tableau de bord</Text>
-              <Text style={styles.subtitle}>Vue d'ensemble de votre vestiaire</Text>
+              <Text style={styles.title}>{t.dashboard.title}</Text>
+              <Text style={styles.subtitle}>{t.dashboard.subtitle}</Text>
             </View>
           </View>
           
@@ -80,7 +110,7 @@ export default function DashboardScreen() {
               style={({ pressed }) => [styles.logoutButton, pressed && styles.logoutButtonPressed]}
             >
               <LogOut size={20} color={Colors.dark.error} />
-              <Text style={styles.logoutText}>Déconnexion</Text>
+              <Text style={styles.logoutText}>{t.auth.logout}</Text>
             </Pressable>
           </View>
         </View>
@@ -91,7 +121,7 @@ export default function DashboardScreen() {
               <Package size={24} color={Colors.dark.primary} />
             </View>
             <Text style={styles.statValue}>{stats.active}</Text>
-            <Text style={styles.statLabel}>Vestes actives</Text>
+            <Text style={styles.statLabel}>{t.dashboard.activeJackets}</Text>
           </View>
 
           <View style={styles.statCard}>
@@ -99,7 +129,7 @@ export default function DashboardScreen() {
               <CheckCircle size={24} color={Colors.dark.success} />
             </View>
             <Text style={styles.statValue}>{stats.retrieved}</Text>
-            <Text style={styles.statLabel}>Récupérées</Text>
+            <Text style={styles.statLabel}>{t.dashboard.retrieved}</Text>
           </View>
 
           <View style={styles.statCard}>
@@ -107,7 +137,7 @@ export default function DashboardScreen() {
               <TrendingUp size={24} color={Colors.dark.secondary} />
             </View>
             <Text style={styles.statValue}>{stats.todayDeposits}</Text>
-            <Text style={styles.statLabel}>Dépôts aujourd'hui</Text>
+            <Text style={styles.statLabel}>{t.dashboard.depositsToday}</Text>
           </View>
 
           <View style={styles.statCard}>
@@ -115,12 +145,12 @@ export default function DashboardScreen() {
               <LayoutDashboard size={24} color={Colors.dark.warning} />
             </View>
             <Text style={styles.statValue}>{stats.total}</Text>
-            <Text style={styles.statLabel}>Total</Text>
+            <Text style={styles.statLabel}>{t.dashboard.total}</Text>
           </View>
         </View>
 
         <View style={styles.quickActions}>
-          <Text style={styles.sectionTitle}>Actions rapides</Text>
+          <Text style={styles.sectionTitle}>{t.dashboard.quickActions}</Text>
           
           <Pressable 
             style={({ pressed }) => [
@@ -133,8 +163,8 @@ export default function DashboardScreen() {
                 <Package size={24} color={Colors.dark.primary} />
               </View>
               <View style={styles.actionText}>
-                <Text style={styles.actionTitle}>Nouveau dépôt</Text>
-                <Text style={styles.actionSubtitle}>Enregistrer une nouvelle veste</Text>
+                <Text style={styles.actionTitle}>{t.dashboard.newDeposit}</Text>
+                <Text style={styles.actionSubtitle}>{t.dashboard.newDepositDescription}</Text>
               </View>
             </View>
           </Pressable>
@@ -150,8 +180,8 @@ export default function DashboardScreen() {
                 <CheckCircle size={24} color={Colors.dark.success} />
               </View>
               <View style={styles.actionText}>
-                <Text style={styles.actionTitle}>Scanner QR Code</Text>
-                <Text style={styles.actionSubtitle}>Récupérer une veste</Text>
+                <Text style={styles.actionTitle}>{t.dashboard.scanQR}</Text>
+                <Text style={styles.actionSubtitle}>{t.dashboard.scanQRDescription}</Text>
               </View>
             </View>
           </Pressable>
