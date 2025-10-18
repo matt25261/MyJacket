@@ -335,7 +335,7 @@ export default function StatisticsScreen() {
                       </Text>
                       {weekData.peakDay === dayStats.date && (
                         <View style={styles.peakBadge}>
-                          <Text style={styles.peakBadgeText}>{t.statistics.peakHour}</Text>
+                          <Text style={styles.peakBadgeText}>{t.statistics.peakDay}</Text>
                         </View>
                       )}
                     </View>
@@ -575,7 +575,7 @@ export default function StatisticsScreen() {
                     <Text style={styles.weekDate}>{formatWeekRange(stats.weekStart, stats.weekEnd)}</Text>
                     {stats.peakDay && (
                       <Text style={styles.peakInfo}>
-                        {t.statistics.peakHour}: {new Date(stats.peakDay).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US', { weekday: 'short', day: 'numeric' })} ({stats.peakCount})
+                        {t.statistics.peakDay}: {new Date(stats.peakDay).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US', { weekday: 'short', day: 'numeric' })} ({stats.peakCount})
                       </Text>
                     )}
                   </View>
