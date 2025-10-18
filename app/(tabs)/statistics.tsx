@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { useJackets } from '@/contexts/JacketContext';
 import Colors from '@/constants/colors';
-import { ArrowLeft } from 'lucide-react-native';
+import { ArrowLeft, Calendar, CalendarDays } from 'lucide-react-native';
 
 interface DailyStats {
   date: string;
@@ -24,9 +24,21 @@ interface HourlyStats {
   departures: number;
 }
 
+interface WeeklyStats {
+  weekStart: string;
+  weekEnd: string;
+  arrivals: number;
+  departures: number;
+  peakDay: string;
+  peakCount: number;
+}
+
+type ViewMode = 'day' | 'week';
+
 export default function StatisticsScreen() {
   const { jackets } = useJackets();
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>('day');
 
   const getHourlyStats = useCallback((date: string): HourlyStats[] => {
     const hourlyMap = new Map<number, HourlyStats>();
@@ -118,6 +130,85 @@ export default function StatisticsScreen() {
     );
   }, [jackets, getHourlyStats]);
 
+  const getWeekKey = (date: Date) => {
+    const startOfWeek = new Date(date);
+    startOfWeek.setDate(date.getDate() - date.getDay() + 1);
+    return startOfWeek.toISOString().split('T')[0];
+  };
+
+  const weeklyStats = useMemo(() => {
+    const statsMap = new Map<string, WeeklyStats>();
+
+    jackets.forEach((jacket) => {
+      const depositDate = new Date(jacket.depositTime);
+      const weekKey = getWeekKey(depositDate);
+
+      if (!statsMap.has(weekKey)) {
+        const weekStart = new Date(weekKey);
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekEnd.getDate() + 6);
+
+        statsMap.set(weekKey, {
+          weekStart: weekKey,
+          weekEnd: weekEnd.toISOString().split('T')[0],
+          arrivals: 0,
+          departures: 0,
+          peakDay: '',
+          peakCount: 0,
+        });
+      }
+
+      const stats = statsMap.get(weekKey)!;
+      stats.arrivals += 1;
+
+      if (jacket.retrievalTime) {
+        const retrievalDate = new Date(jacket.retrievalTime);
+        const retrievalWeekKey = getWeekKey(retrievalDate);
+
+        if (retrievalWeekKey === weekKey) {
+          stats.departures += 1;
+        } else if (statsMap.has(retrievalWeekKey)) {
+          statsMap.get(retrievalWeekKey)!.departures += 1;
+        } else {
+          const weekStart = new Date(retrievalWeekKey);
+          const weekEnd = new Date(weekStart);
+          weekEnd.setDate(weekEnd.getDate() + 6);
+
+          statsMap.set(retrievalWeekKey, {
+            weekStart: retrievalWeekKey,
+            weekEnd: weekEnd.toISOString().split('T')[0],
+            arrivals: 0,
+            departures: 1,
+            peakDay: '',
+            peakCount: 0,
+          });
+        }
+      }
+    });
+
+    statsMap.forEach((weekStats) => {
+      const dailyStatsInWeek = dailyStats.filter((ds) => {
+        const date = new Date(ds.date);
+        const dayWeekKey = getWeekKey(date);
+        return dayWeekKey === weekStats.weekStart;
+      });
+
+      if (dailyStatsInWeek.length > 0) {
+        const peak = dailyStatsInWeek.reduce((max, curr) => {
+          const total = curr.arrivals + curr.departures;
+          return total > max.count ? { day: curr.date, count: total } : max;
+        }, { day: '', count: 0 });
+
+        weekStats.peakDay = peak.day;
+        weekStats.peakCount = peak.count;
+      }
+    });
+
+    return Array.from(statsMap.values()).sort(
+      (a, b) => new Date(b.weekStart).getTime() - new Date(a.weekStart).getTime()
+    );
+  }, [jackets, dailyStats]);
+
   const selectedDateStats = useMemo(() => {
     if (!selectedDate) return null;
     return getHourlyStats(selectedDate);
@@ -131,6 +222,12 @@ export default function StatisticsScreen() {
       month: 'long',
       day: 'numeric',
     });
+  };
+
+  const formatWeekRange = (startStr: string, endStr: string) => {
+    const start = new Date(startStr);
+    const end = new Date(endStr);
+    return `${start.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} - ${end.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}`;
   };
 
   const maxHourlyValue = useMemo(() => {
@@ -229,9 +326,27 @@ export default function StatisticsScreen() {
 
   return (
     <View style={styles.container}>
+      <View style={styles.tabsContainer}>
+        <TouchableOpacity
+          style={[styles.tab, viewMode === 'day' && styles.tabActive]}
+          onPress={() => setViewMode('day')}
+        >
+          <Calendar size={20} color={viewMode === 'day' ? Colors.dark.text : Colors.dark.textSecondary} />
+          <Text style={[styles.tabText, viewMode === 'day' && styles.tabTextActive]}>Par jour</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tab, viewMode === 'week' && styles.tabActive]}
+          onPress={() => setViewMode('week')}
+        >
+          <CalendarDays size={20} color={viewMode === 'week' ? Colors.dark.text : Colors.dark.textSecondary} />
+          <Text style={[styles.tabText, viewMode === 'week' && styles.tabTextActive]}>Par semaine</Text>
+        </TouchableOpacity>
+      </View>
+      
       <ScrollView style={styles.content}>
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Vue globale par jour</Text>
+        {viewMode === 'day' ? (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Vue globale par jour</Text>
           {dailyStats.length === 0 ? (
             <View style={styles.emptyState}>
               <Text style={styles.emptyText}>
@@ -286,7 +401,68 @@ export default function StatisticsScreen() {
               </TouchableOpacity>
             ))
           )}
-        </View>
+          </View>
+        ) : (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Vue globale par semaine</Text>
+            {weeklyStats.length === 0 ? (
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyText}>
+                  Aucune donnée disponible pour le moment
+                </Text>
+              </View>
+            ) : (
+              weeklyStats.map((stats) => (
+                <View key={stats.weekStart} style={styles.weekCard}>
+                  <View style={styles.weekHeader}>
+                    <Text style={styles.weekDate}>{formatWeekRange(stats.weekStart, stats.weekEnd)}</Text>
+                    {stats.peakDay && (
+                      <Text style={styles.peakInfo}>
+                        Pic : {new Date(stats.peakDay).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric' })} ({stats.peakCount})
+                      </Text>
+                    )}
+                  </View>
+                  <View style={styles.weekStats}>
+                    <View style={styles.weekStatBox}>
+                      <View
+                        style={[
+                          styles.statIndicator,
+                          { backgroundColor: Colors.dark.success },
+                        ]}
+                      />
+                      <Text style={styles.weekStatLabel}>Arrivées</Text>
+                      <Text style={[styles.weekStatValue, { color: Colors.dark.success }]}>{stats.arrivals}</Text>
+                    </View>
+                    <View style={styles.weekStatBox}>
+                      <View
+                        style={[
+                          styles.statIndicator,
+                          { backgroundColor: Colors.dark.error },
+                        ]}
+                      />
+                      <Text style={styles.weekStatLabel}>Départs</Text>
+                      <Text style={[styles.weekStatValue, { color: Colors.dark.error }]}>{stats.departures}</Text>
+                    </View>
+                    <View style={styles.weekStatBox}>
+                      <Text style={styles.weekStatLabel}>Total</Text>
+                      <Text style={[styles.weekStatValue, { color: Colors.dark.primary }]}>{stats.arrivals + stats.departures}</Text>
+                    </View>
+                  </View>
+                  <View style={styles.activityBar}>
+                    <View
+                      style={[
+                        styles.activityFill,
+                        {
+                          width: stats.peakCount > 0 ? `${Math.min(100, (stats.peakCount / 20) * 100)}%` : '0%',
+                        },
+                      ]}
+                    />
+                  </View>
+                </View>
+              ))
+            )}
+          </View>
+        )}
       </ScrollView>
     </View>
   );
@@ -477,5 +653,73 @@ const styles = StyleSheet.create({
     color: Colors.dark.text,
     marginLeft: 6,
     fontWeight: '500' as const,
+  },
+  tabsContainer: {
+    flexDirection: 'row',
+    backgroundColor: Colors.dark.card,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.dark.border,
+    paddingHorizontal: 20,
+  },
+  tab: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 16,
+    borderBottomWidth: 2,
+    borderBottomColor: 'transparent',
+  },
+  tabActive: {
+    borderBottomColor: Colors.dark.primary,
+  },
+  tabText: {
+    fontSize: 15,
+    fontWeight: '500' as const,
+    color: Colors.dark.textSecondary,
+  },
+  tabTextActive: {
+    color: Colors.dark.text,
+    fontWeight: '600' as const,
+  },
+  weekCard: {
+    backgroundColor: Colors.dark.card,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: Colors.dark.border,
+  },
+  weekHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  weekDate: {
+    fontSize: 16,
+    fontWeight: '600' as const,
+    color: Colors.dark.text,
+    flex: 1,
+  },
+  weekStats: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+    gap: 12,
+  },
+  weekStatBox: {
+    flex: 1,
+    alignItems: 'center',
+    gap: 4,
+  },
+  weekStatLabel: {
+    fontSize: 12,
+    color: Colors.dark.textSecondary,
+  },
+  weekStatValue: {
+    fontSize: 24,
+    fontWeight: '700' as const,
   },
 });
