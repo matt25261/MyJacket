@@ -5,13 +5,12 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
-  Alert,
 } from 'react-native';
 import { useJackets } from '@/contexts/JacketContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslations } from '@/constants/translations';
 import Colors from '@/constants/colors';
-import { ArrowLeft, Calendar, CalendarDays, Languages } from 'lucide-react-native';
+import { ArrowLeft, Calendar, CalendarDays } from 'lucide-react-native';
 
 interface DailyStats {
   date: string;
@@ -46,32 +45,11 @@ interface SelectedWeek {
 
 export default function StatisticsScreen() {
   const { jackets } = useJackets();
-  const { language, changeLanguage } = useLanguage();
+  const { language } = useLanguage();
   const t = useTranslations(language);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedWeek, setSelectedWeek] = useState<SelectedWeek | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('day');
-
-  const handleLanguageChange = () => {
-    Alert.alert(
-      t.settings.language,
-      t.settings.selectLanguage,
-      [
-        {
-          text: t.settings.french,
-          onPress: () => changeLanguage('fr'),
-        },
-        {
-          text: t.settings.english,
-          onPress: () => changeLanguage('en'),
-        },
-        {
-          text: t.common.cancel,
-          style: 'cancel',
-        }
-      ]
-    );
-  };
 
   const getHourlyStats = useCallback((date: string): HourlyStats[] => {
     const hourlyMap = new Map<number, HourlyStats>();
@@ -298,12 +276,7 @@ export default function StatisticsScreen() {
             <ArrowLeft size={24} color={Colors.dark.text} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>{t.statistics.weekly}</Text>
-          <TouchableOpacity
-            onPress={handleLanguageChange}
-            style={styles.languageButton}
-          >
-            <Languages size={24} color={Colors.dark.text} />
-          </TouchableOpacity>
+          <View style={{ width: 40 }} />
         </View>
 
         <ScrollView style={styles.content}>
@@ -425,12 +398,7 @@ export default function StatisticsScreen() {
             <ArrowLeft size={24} color={Colors.dark.text} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>{t.statistics.daily}</Text>
-          <TouchableOpacity
-            onPress={handleLanguageChange}
-            style={styles.languageButton}
-          >
-            <Languages size={24} color={Colors.dark.text} />
-          </TouchableOpacity>
+          <View style={{ width: 40 }} />
         </View>
 
         <ScrollView style={styles.content}>
@@ -510,12 +478,6 @@ export default function StatisticsScreen() {
     <View style={styles.container}>
       <View style={styles.topBar}>
         <Text style={styles.topBarTitle}>{t.statistics.title}</Text>
-        <TouchableOpacity
-          onPress={handleLanguageChange}
-          style={styles.languageButton}
-        >
-          <Languages size={24} color={Colors.dark.text} />
-        </TouchableOpacity>
       </View>
       <View style={styles.tabsContainer}>
         <TouchableOpacity
@@ -686,9 +648,7 @@ const styles = StyleSheet.create({
     fontWeight: '600' as const,
     color: Colors.dark.text,
   },
-  languageButton: {
-    padding: 8,
-  },
+
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',
