@@ -5,10 +5,13 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import { useJackets } from '@/contexts/JacketContext';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useTranslations } from '@/constants/translations';
 import Colors from '@/constants/colors';
-import { ArrowLeft, Calendar, CalendarDays } from 'lucide-react-native';
+import { ArrowLeft, Calendar, CalendarDays, Languages } from 'lucide-react-native';
 
 interface DailyStats {
   date: string;
@@ -43,9 +46,32 @@ interface SelectedWeek {
 
 export default function StatisticsScreen() {
   const { jackets } = useJackets();
+  const { language, changeLanguage } = useLanguage();
+  const t = useTranslations(language);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedWeek, setSelectedWeek] = useState<SelectedWeek | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('day');
+
+  const handleLanguageChange = () => {
+    Alert.alert(
+      t.settings.language,
+      t.settings.selectLanguage,
+      [
+        {
+          text: t.settings.french,
+          onPress: () => changeLanguage('fr'),
+        },
+        {
+          text: t.settings.english,
+          onPress: () => changeLanguage('en'),
+        },
+        {
+          text: t.common.cancel,
+          style: 'cancel',
+        }
+      ]
+    );
+  };
 
   const getHourlyStats = useCallback((date: string): HourlyStats[] => {
     const hourlyMap = new Map<number, HourlyStats>();
@@ -229,7 +255,8 @@ export default function StatisticsScreen() {
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
-    return date.toLocaleDateString('fr-FR', {
+    const locale = language === 'fr' ? 'fr-FR' : 'en-US';
+    return date.toLocaleDateString(locale, {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
@@ -240,7 +267,8 @@ export default function StatisticsScreen() {
   const formatWeekRange = (startStr: string, endStr: string) => {
     const start = new Date(startStr);
     const end = new Date(endStr);
-    return `${start.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} - ${end.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+    const locale = language === 'fr' ? 'fr-FR' : 'en-US';
+    return `${start.toLocaleDateString(locale, { day: 'numeric', month: 'short' })} - ${end.toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' })}`;
   };
 
   const maxHourlyValue = useMemo(() => {
@@ -269,7 +297,13 @@ export default function StatisticsScreen() {
           >
             <ArrowLeft size={24} color={Colors.dark.text} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Détails de la semaine</Text>
+          <Text style={styles.headerTitle}>{t.statistics.weekly}</Text>
+          <TouchableOpacity
+            onPress={handleLanguageChange}
+            style={styles.languageButton}
+          >
+            <Languages size={24} color={Colors.dark.text} />
+          </TouchableOpacity>
         </View>
 
         <ScrollView style={styles.content}>
@@ -282,23 +316,23 @@ export default function StatisticsScreen() {
                 <Text style={[styles.statValue, { color: Colors.dark.success }]}>
                   {weekData.arrivals}
                 </Text>
-                <Text style={styles.statLabel}>Arrivées</Text>
+                <Text style={styles.statLabel}>{t.statistics.arrivals}</Text>
               </View>
               <View style={styles.statItem}>
                 <Text style={[styles.statValue, { color: Colors.dark.error }]}>
                   {weekData.departures}
                 </Text>
-                <Text style={styles.statLabel}>Départs</Text>
+                <Text style={styles.statLabel}>{t.statistics.departures}</Text>
               </View>
             </View>
           </View>
 
           <View style={styles.chartContainer}>
-            <Text style={styles.chartTitle}>Récapitulatif par jour</Text>
+            <Text style={styles.chartTitle}>{t.statistics.daily}</Text>
             {weekData.dailyBreakdown.length === 0 ? (
               <View style={styles.emptyState}>
                 <Text style={styles.emptyText}>
-                  Aucune donnée disponible pour cette semaine
+                  {t.statistics.noData}
                 </Text>
               </View>
             ) : (
@@ -320,7 +354,7 @@ export default function StatisticsScreen() {
                   >
                     <View style={styles.weekDayHeader}>
                       <Text style={styles.weekDayName}>
-                        {new Date(dayStats.date).toLocaleDateString('fr-FR', {
+                        {new Date(dayStats.date).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US', {
                           weekday: 'long',
                           day: 'numeric',
                           month: 'short',
@@ -328,7 +362,7 @@ export default function StatisticsScreen() {
                       </Text>
                       {weekData.peakDay === dayStats.date && (
                         <View style={styles.peakBadge}>
-                          <Text style={styles.peakBadgeText}>Pic</Text>
+                          <Text style={styles.peakBadgeText}>{t.statistics.peakHour}</Text>
                         </View>
                       )}
                     </View>
@@ -342,7 +376,7 @@ export default function StatisticsScreen() {
                               { backgroundColor: Colors.dark.success },
                             ]}
                           />
-                          <Text style={styles.weekDayStatLabel}>Arrivées</Text>
+                          <Text style={styles.weekDayStatLabel}>{t.statistics.arrivals}</Text>
                         </View>
                         <Text style={styles.weekDayStatValue}>{dayStats.arrivals}</Text>
                       </View>
@@ -354,7 +388,7 @@ export default function StatisticsScreen() {
                               { backgroundColor: Colors.dark.error },
                             ]}
                           />
-                          <Text style={styles.weekDayStatLabel}>Départs</Text>
+                          <Text style={styles.weekDayStatLabel}>{t.statistics.departures}</Text>
                         </View>
                         <Text style={styles.weekDayStatValue}>{dayStats.departures}</Text>
                       </View>
@@ -390,7 +424,13 @@ export default function StatisticsScreen() {
           >
             <ArrowLeft size={24} color={Colors.dark.text} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Détails du jour</Text>
+          <Text style={styles.headerTitle}>{t.statistics.daily}</Text>
+          <TouchableOpacity
+            onPress={handleLanguageChange}
+            style={styles.languageButton}
+          >
+            <Languages size={24} color={Colors.dark.text} />
+          </TouchableOpacity>
         </View>
 
         <ScrollView style={styles.content}>
@@ -401,19 +441,19 @@ export default function StatisticsScreen() {
                 <Text style={[styles.statValue, { color: Colors.dark.success }]}>
                   {selectedDateStats.reduce((sum, s) => sum + s.arrivals, 0)}
                 </Text>
-                <Text style={styles.statLabel}>Arrivées</Text>
+                <Text style={styles.statLabel}>{t.statistics.arrivals}</Text>
               </View>
               <View style={styles.statItem}>
                 <Text style={[styles.statValue, { color: Colors.dark.error }]}>
                   {selectedDateStats.reduce((sum, s) => sum + s.departures, 0)}
                 </Text>
-                <Text style={styles.statLabel}>Départs</Text>
+                <Text style={styles.statLabel}>{t.statistics.departures}</Text>
               </View>
             </View>
           </View>
 
           <View style={styles.chartContainer}>
-            <Text style={styles.chartTitle}>Activité par heure</Text>
+            <Text style={styles.chartTitle}>{language === 'fr' ? 'Activité par heure' : 'Activity by hour'}</Text>
             {selectedDateStats.map((stat) => {
               const maxValue = Math.max(stat.arrivals, stat.departures);
               const hasActivity = maxValue > 0;
@@ -468,31 +508,40 @@ export default function StatisticsScreen() {
 
   return (
     <View style={styles.container}>
+      <View style={styles.topBar}>
+        <Text style={styles.topBarTitle}>{t.statistics.title}</Text>
+        <TouchableOpacity
+          onPress={handleLanguageChange}
+          style={styles.languageButton}
+        >
+          <Languages size={24} color={Colors.dark.text} />
+        </TouchableOpacity>
+      </View>
       <View style={styles.tabsContainer}>
         <TouchableOpacity
           style={[styles.tab, viewMode === 'day' && styles.tabActive]}
           onPress={() => setViewMode('day')}
         >
           <Calendar size={20} color={viewMode === 'day' ? Colors.dark.text : Colors.dark.textSecondary} />
-          <Text style={[styles.tabText, viewMode === 'day' && styles.tabTextActive]}>Par jour</Text>
+          <Text style={[styles.tabText, viewMode === 'day' && styles.tabTextActive]}>{t.statistics.daily}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.tab, viewMode === 'week' && styles.tabActive]}
           onPress={() => setViewMode('week')}
         >
           <CalendarDays size={20} color={viewMode === 'week' ? Colors.dark.text : Colors.dark.textSecondary} />
-          <Text style={[styles.tabText, viewMode === 'week' && styles.tabTextActive]}>Par semaine</Text>
+          <Text style={[styles.tabText, viewMode === 'week' && styles.tabTextActive]}>{t.statistics.weekly}</Text>
         </TouchableOpacity>
       </View>
       
       <ScrollView style={styles.content}>
         {viewMode === 'day' ? (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Vue globale par jour</Text>
+            <Text style={styles.sectionTitle}>{language === 'fr' ? 'Vue globale par jour' : 'Daily overview'}</Text>
           {dailyStats.length === 0 ? (
             <View style={styles.emptyState}>
               <Text style={styles.emptyText}>
-                Aucune donnée disponible pour le moment
+                {t.statistics.noData}
               </Text>
             </View>
           ) : (
@@ -505,7 +554,7 @@ export default function StatisticsScreen() {
                 <View style={styles.dayHeader}>
                   <Text style={styles.dayDate}>{formatDate(stats.date)}</Text>
                   <Text style={styles.peakInfo}>
-                    Pic : {stats.peakHour}h ({stats.peakCount})
+                    {t.statistics.peakHour}: {stats.peakHour}h ({stats.peakCount})
                   </Text>
                 </View>
                 <View style={styles.dayStats}>
@@ -516,7 +565,7 @@ export default function StatisticsScreen() {
                         { backgroundColor: Colors.dark.success },
                       ]}
                     />
-                    <Text style={styles.dayStatLabel}>Arrivées</Text>
+                    <Text style={styles.dayStatLabel}>{t.statistics.arrivals}</Text>
                     <Text style={styles.dayStatValue}>{stats.arrivals}</Text>
                   </View>
                   <View style={styles.dayStatItem}>
@@ -526,7 +575,7 @@ export default function StatisticsScreen() {
                         { backgroundColor: Colors.dark.error },
                       ]}
                     />
-                    <Text style={styles.dayStatLabel}>Départs</Text>
+                    <Text style={styles.dayStatLabel}>{t.statistics.departures}</Text>
                     <Text style={styles.dayStatValue}>{stats.departures}</Text>
                   </View>
                 </View>
@@ -546,11 +595,11 @@ export default function StatisticsScreen() {
           </View>
         ) : (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Vue globale par semaine</Text>
+            <Text style={styles.sectionTitle}>{language === 'fr' ? 'Vue globale par semaine' : 'Weekly overview'}</Text>
             {weeklyStats.length === 0 ? (
               <View style={styles.emptyState}>
                 <Text style={styles.emptyText}>
-                  Aucune donnée disponible pour le moment
+                  {t.statistics.noData}
                 </Text>
               </View>
             ) : (
@@ -564,7 +613,7 @@ export default function StatisticsScreen() {
                     <Text style={styles.weekDate}>{formatWeekRange(stats.weekStart, stats.weekEnd)}</Text>
                     {stats.peakDay && (
                       <Text style={styles.peakInfo}>
-                        Pic : {new Date(stats.peakDay).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric' })} ({stats.peakCount})
+                        {t.statistics.peakHour}: {new Date(stats.peakDay).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US', { weekday: 'short', day: 'numeric' })} ({stats.peakCount})
                       </Text>
                     )}
                   </View>
@@ -576,7 +625,7 @@ export default function StatisticsScreen() {
                           { backgroundColor: Colors.dark.success },
                         ]}
                       />
-                      <Text style={styles.weekStatLabel}>Arrivées</Text>
+                      <Text style={styles.weekStatLabel}>{t.statistics.arrivals}</Text>
                       <Text style={[styles.weekStatValue, { color: Colors.dark.success }]}>{stats.arrivals}</Text>
                     </View>
                     <View style={styles.weekStatBox}>
@@ -586,11 +635,11 @@ export default function StatisticsScreen() {
                           { backgroundColor: Colors.dark.error },
                         ]}
                       />
-                      <Text style={styles.weekStatLabel}>Départs</Text>
+                      <Text style={styles.weekStatLabel}>{t.statistics.departures}</Text>
                       <Text style={[styles.weekStatValue, { color: Colors.dark.error }]}>{stats.departures}</Text>
                     </View>
                     <View style={styles.weekStatBox}>
-                      <Text style={styles.weekStatLabel}>Total</Text>
+                      <Text style={styles.weekStatLabel}>{language === 'fr' ? 'Total' : 'Total'}</Text>
                       <Text style={[styles.weekStatValue, { color: Colors.dark.primary }]}>{stats.arrivals + stats.departures}</Text>
                     </View>
                   </View>
@@ -632,8 +681,27 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   headerTitle: {
+    flex: 1,
     fontSize: 20,
     fontWeight: '600' as const,
+    color: Colors.dark.text,
+  },
+  languageButton: {
+    padding: 8,
+  },
+  topBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    backgroundColor: Colors.dark.card,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.dark.border,
+  },
+  topBarTitle: {
+    fontSize: 24,
+    fontWeight: '700' as const,
     color: Colors.dark.text,
   },
   content: {
