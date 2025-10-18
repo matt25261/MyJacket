@@ -29,13 +29,21 @@ export default function ListScreen() {
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
 
-    if (diffMins < 1) return 'À l\'instant';
-    if (diffMins < 60) return `Il y a ${diffMins} min`;
-    if (diffHours < 24) return `Il y a ${diffHours}h`;
-    if (diffDays === 1) return 'Hier';
-    if (diffDays < 7) return `Il y a ${diffDays} jours`;
+    if (language === 'fr') {
+      if (diffMins < 1) return 'À l\'instant';
+      if (diffMins < 60) return `Il y a ${diffMins} min`;
+      if (diffHours < 24) return `Il y a ${diffHours}h`;
+      if (diffDays === 1) return 'Hier';
+      if (diffDays < 7) return `Il y a ${diffDays} jours`;
+    } else {
+      if (diffMins < 1) return 'Just now';
+      if (diffMins < 60) return `${diffMins} min ago`;
+      if (diffHours < 24) return `${diffHours}h ago`;
+      if (diffDays === 1) return 'Yesterday';
+      if (diffDays < 7) return `${diffDays} days ago`;
+    }
     
-    return date.toLocaleDateString('fr-FR', { 
+    return date.toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US', { 
       day: 'numeric', 
       month: 'short',
       hour: '2-digit',
