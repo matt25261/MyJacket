@@ -5,11 +5,15 @@ import { Package, Phone, Hash, CheckCircle, ChevronDown, Search, X, Share2, Mess
 import QRCode from 'react-native-qrcode-svg';
 import * as Clipboard from 'expo-clipboard';
 import { useJackets } from '@/contexts/JacketContext';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useTranslations } from '@/constants/translations';
 import Colors from '@/constants/colors';
 import { countries, Country } from '@/constants/countries';
 
 export default function DepositScreen() {
   const { addJacket } = useJackets();
+  const { language } = useLanguage();
+  const t = useTranslations(language);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [hangerNumber, setHangerNumber] = useState('');
   const { jackets } = useJackets();
@@ -73,11 +77,11 @@ export default function DepositScreen() {
 
   const validateInputs = () => {
     if (!phoneNumber || phoneNumber.length < 6) {
-      Alert.alert('Erreur', 'Veuillez entrer un numéro de téléphone valide');
+      Alert.alert(t.deposit.error, 'Veuillez entrer un numéro de téléphone valide');
       return false;
     }
     if (!hangerNumber || hangerNumber.trim().length === 0) {
-      Alert.alert('Erreur', 'Veuillez entrer un numéro de cintre');
+      Alert.alert(t.deposit.error, 'Veuillez entrer un numéro de cintre');
       return false;
     }
     
@@ -85,7 +89,7 @@ export default function DepositScreen() {
       j.hangerNumber === hangerNumber.trim() && j.status === 'active'
     );
     if (existingJacket) {
-      Alert.alert('Erreur', `Le numéro de cintre ${hangerNumber} est déjà utilisé par une veste active`);
+      Alert.alert(t.deposit.error, `Le numéro de cintre ${hangerNumber} est déjà utilisé par une veste active`);
       return false;
     }
     
@@ -128,7 +132,7 @@ export default function DepositScreen() {
     
     try {
       if (Platform.OS === 'web') {
-        Alert.alert('Non disponible', 'L\'envoi de SMS n\'est pas disponible sur le web.');
+        Alert.alert(t.common.close, 'L\'envoi de SMS n\'est pas disponible sur le web.');
         setIsSubmitting(false);
         return;
       }
@@ -142,11 +146,11 @@ export default function DepositScreen() {
         setPendingJacket(jacket);
         setShowVerification(true);
       } else {
-        Alert.alert('Erreur', 'Impossible d\'ouvrir l\'application SMS');
+        Alert.alert(t.deposit.error, 'Impossible d\'ouvrir l\'application SMS');
       }
     } catch (error) {
       console.error('Error opening SMS:', error);
-      Alert.alert('Erreur', 'Impossible d\'ouvrir l\'application SMS');
+      Alert.alert(t.deposit.error, 'Impossible d\'ouvrir l\'application SMS');
     }
 
     setIsSubmitting(false);
@@ -221,7 +225,7 @@ export default function DepositScreen() {
     
     try {
       if (Platform.OS === 'web') {
-        Alert.alert('Non disponible', 'L\'envoi de SMS n\'est pas disponible sur le web. Utilisez "Partager" ou "Copier lien".');
+        Alert.alert(t.common.close, 'L\'envoi de SMS n\'est pas disponible sur le web. Utilisez "Partager" ou "Copier lien".');
         return;
       }
 
@@ -234,11 +238,11 @@ export default function DepositScreen() {
         setPendingJacket(jacket);
         setShowVerification(true);
       } else {
-        Alert.alert('Erreur', 'Impossible d\'ouvrir l\'application SMS');
+        Alert.alert(t.deposit.error, 'Impossible d\'ouvrir l\'application SMS');
       }
     } catch (error) {
       console.error('Error opening SMS:', error);
-      Alert.alert('Erreur', 'Impossible d\'ouvrir l\'application SMS');
+      Alert.alert(t.deposit.error, 'Impossible d\'ouvrir l\'application SMS');
     }
   };
 
@@ -250,17 +254,17 @@ export default function DepositScreen() {
 
     try {
       await Clipboard.setStringAsync(jacket.deepLink);
-      Alert.alert('Copié !', 'Le lien a été copié dans le presse-papier');
+      Alert.alert(language === 'fr' ? 'Copié !' : 'Copied!', language === 'fr' ? 'Le lien a été copié dans le presse-papier' : 'The link has been copied to the clipboard');
     } catch (error) {
       console.error('Error copying:', error);
-      Alert.alert('Erreur', 'Impossible de copier le lien');
+      Alert.alert(t.deposit.error, language === 'fr' ? 'Impossible de copier le lien' : 'Unable to copy the link');
     }
   };
 
   if (generatedQR) {
     return (
       <View style={styles.container}>
-        <Stack.Screen options={{ title: 'Dépôt réussi' }} />
+        <Stack.Screen options={{ title: t.deposit.success }} />
         <ScrollView 
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
@@ -271,7 +275,7 @@ export default function DepositScreen() {
               <CheckCircle size={64} color={Colors.dark.success} />
             </View>
             
-            <Text style={styles.successTitle}>Cintre enregistré !</Text>
+            <Text style={styles.successTitle}>{language === 'fr' ? 'Cintre enregistré !' : 'Hanger registered!'}</Text>
 
             <View style={styles.qrContainer}>
               <View style={styles.qrWrapper}>
@@ -284,18 +288,18 @@ export default function DepositScreen() {
                 />
               </View>
               <Text style={styles.qrCode}>{generatedQR}</Text>
-              <Text style={styles.qrHint}>Scannez ce code pour récupérer la veste</Text>
+              <Text style={styles.qrHint}>{language === 'fr' ? 'Scannez ce code pour récupérer la veste' : 'Scan this code to retrieve the jacket'}</Text>
             </View>
 
             <View style={styles.infoCard}>
               <View style={styles.infoRow}>
                 <Phone size={20} color={Colors.dark.textSecondary} />
-                <Text style={styles.infoLabel}>Téléphone</Text>
+                <Text style={styles.infoLabel}>{t.deposit.ownerPhone}</Text>
                 <Text style={styles.infoValue}>{selectedCountry.dialCode} {phoneNumber}</Text>
               </View>
               <View style={styles.infoRow}>
                 <Hash size={20} color={Colors.dark.textSecondary} />
-                <Text style={styles.infoLabel}>Cintre</Text>
+                <Text style={styles.infoLabel}>{language === 'fr' ? 'Cintre' : 'Hanger'}</Text>
                 <Text style={styles.infoValue}>{hangerNumber}</Text>
               </View>
             </View>
@@ -310,7 +314,7 @@ export default function DepositScreen() {
                 onPress={handleSendSMS}
               >
                 <MessageCircle size={20} color={Colors.dark.text} />
-                <Text style={styles.actionButtonText}>Envoyer SMS</Text>
+                <Text style={styles.actionButtonText}>{language === 'fr' ? 'Envoyer SMS' : 'Send SMS'}</Text>
               </Pressable>
 
               <Pressable
@@ -322,7 +326,7 @@ export default function DepositScreen() {
                 onPress={handleShare}
               >
                 <Share2 size={20} color={Colors.dark.text} />
-                <Text style={styles.actionButtonText}>Partager</Text>
+                <Text style={styles.actionButtonText}>{language === 'fr' ? 'Partager' : 'Share'}</Text>
               </Pressable>
 
               <Pressable
@@ -334,7 +338,7 @@ export default function DepositScreen() {
                 onPress={handleCopyLink}
               >
                 <Copy size={20} color={Colors.dark.text} />
-                <Text style={styles.actionButtonText}>Copier lien</Text>
+                <Text style={styles.actionButtonText}>{language === 'fr' ? 'Copier lien' : 'Copy link'}</Text>
               </Pressable>
             </View>
 
@@ -346,7 +350,7 @@ export default function DepositScreen() {
               onPress={handleNewDeposit}
             >
               <Package size={20} color={Colors.dark.text} />
-              <Text style={styles.newDepositButtonText}>Nouveau dépôt</Text>
+              <Text style={styles.newDepositButtonText}>{t.dashboard.newDeposit}</Text>
             </Pressable>
           </View>
         </ScrollView>
@@ -360,7 +364,7 @@ export default function DepositScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
     >
-      <Stack.Screen options={{ title: 'Nouveau dépôt' }} />
+      <Stack.Screen options={{ title: t.deposit.newJacket }} />
       <ScrollView 
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -369,13 +373,13 @@ export default function DepositScreen() {
         {...panResponder.panHandlers}
       >
         <View style={styles.header}>
-          <Text style={styles.title}>Enregistrer une veste</Text>
-          <Text style={styles.subtitle}>Saisissez les informations du client</Text>
+          <Text style={styles.title}>{language === 'fr' ? 'Enregistrer une veste' : 'Register a jacket'}</Text>
+          <Text style={styles.subtitle}>{language === 'fr' ? 'Saisissez les informations du client' : 'Enter customer information'}</Text>
         </View>
 
         <View style={styles.form}>
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Numéro de téléphone</Text>
+            <Text style={styles.label}>{t.deposit.ownerPhone}</Text>
             <View style={styles.phoneInputRow}>
               <Pressable
                 style={({ pressed }) => [
@@ -403,7 +407,7 @@ export default function DepositScreen() {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Numéro de cintre</Text>
+            <Text style={styles.label}>{t.deposit.jacketNumber}</Text>
             <View style={styles.inputContainer}>
               <Hash size={20} color={Colors.dark.textSecondary} />
               <TextInput
@@ -428,16 +432,17 @@ export default function DepositScreen() {
           >
             <Package size={20} color={Colors.dark.text} />
             <Text style={styles.submitButtonText}>
-              {isSubmitting ? 'Enregistrement...' : 'Enregistrer le dépôt'}
+              {isSubmitting ? (language === 'fr' ? 'Enregistrement...' : 'Registering...') : t.deposit.submit}
             </Text>
           </Pressable>
         </View>
 
         <View style={styles.infoBox}>
-          <Text style={styles.infoBoxTitle}>ℹ️ Information</Text>
+          <Text style={styles.infoBoxTitle}>ℹ️ {language === 'fr' ? 'Information' : 'Information'}</Text>
           <Text style={styles.infoBoxText}>
-            Un QR code unique sera généré. Vous pourrez l&apos;envoyer directement au client via SMS ou messagerie. 
-            Il pourra le présenter pour récupérer sa veste.
+            {language === 'fr' 
+              ? 'Un QR code unique sera généré. Vous pourrez l\'envoyer directement au client via SMS ou messagerie. Il pourra le présenter pour récupérer sa veste.'
+              : 'A unique QR code will be generated. You can send it directly to the customer via SMS or messaging. They can present it to retrieve their jacket.'}
           </Text>
         </View>
       </ScrollView>
@@ -451,7 +456,7 @@ export default function DepositScreen() {
             ]}
             onPress={() => Keyboard.dismiss()}
           >
-            <Text style={styles.dismissButtonText}>Terminé</Text>
+            <Text style={styles.dismissButtonText}>{language === 'fr' ? 'Terminé' : 'Done'}</Text>
           </Pressable>
         </View>
       )}
@@ -465,7 +470,7 @@ export default function DepositScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Sélectionner un pays</Text>
+              <Text style={styles.modalTitle}>{t.deposit.selectCountry}</Text>
               <Pressable
                 style={styles.modalCloseButton}
                 onPress={() => {
@@ -483,7 +488,7 @@ export default function DepositScreen() {
                 style={styles.searchInput}
                 value={countrySearch}
                 onChangeText={setCountrySearch}
-                placeholder="Rechercher un pays..."
+                placeholder={language === 'fr' ? 'Rechercher un pays...' : 'Search a country...'}
                 placeholderTextColor={Colors.dark.textTertiary}
               />
               {countrySearch.length > 0 && (
@@ -528,9 +533,9 @@ export default function DepositScreen() {
               <AlertCircle size={48} color={Colors.dark.warning} />
             </View>
             
-            <Text style={styles.verificationTitle}>Vérification</Text>
+            <Text style={styles.verificationTitle}>{language === 'fr' ? 'Vérification' : 'Verification'}</Text>
             <Text style={styles.verificationMessage}>
-              Le client a-t-il bien reçu le message ?
+              {language === 'fr' ? 'Le client a-t-il bien reçu le message ?' : 'Did the customer receive the message?'}
             </Text>
 
             <View style={styles.verificationButtons}>
@@ -543,7 +548,7 @@ export default function DepositScreen() {
                 onPress={handleConfirmDelivery}
               >
                 <CheckCircle size={20} color="white" />
-                <Text style={styles.confirmButtonText}>Message reçu</Text>
+                <Text style={styles.confirmButtonText}>{language === 'fr' ? 'Message reçu' : 'Message received'}</Text>
               </Pressable>
 
               <Pressable
@@ -555,7 +560,7 @@ export default function DepositScreen() {
                 onPress={handleCancelDeposit}
               >
                 <X size={20} color="white" />
-                <Text style={styles.cancelButtonText}>Annuler le dépôt</Text>
+                <Text style={styles.cancelButtonText}>{language === 'fr' ? 'Annuler le dépôt' : 'Cancel deposit'}</Text>
               </Pressable>
             </View>
           </View>

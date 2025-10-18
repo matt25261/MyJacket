@@ -3,6 +3,8 @@ import { Stack } from 'expo-router';
 import { useState } from 'react';
 import { Package, CheckCircle, Phone, Hash, Clock } from 'lucide-react-native';
 import { useJackets } from '@/contexts/JacketContext';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useTranslations } from '@/constants/translations';
 import { Jacket } from '@/types/jacket';
 import Colors from '@/constants/colors';
 
@@ -10,6 +12,8 @@ type FilterType = 'all' | 'active' | 'retrieved';
 
 export default function ListScreen() {
   const { jackets, isLoading } = useJackets();
+  const { language } = useLanguage();
+  const t = useTranslations(language);
   const [filter, setFilter] = useState<FilterType>('all');
 
   const filteredJackets = jackets.filter(jacket => {
@@ -55,7 +59,7 @@ export default function ListScreen() {
             styles.statusText,
             item.status === 'active' ? styles.statusTextActive : styles.statusTextRetrieved
           ]}>
-            {item.status === 'active' ? 'Active' : 'Récupérée'}
+            {item.status === 'active' ? t.list.active : t.list.retrieved}
           </Text>
         </View>
         <Text style={styles.hangerNumberBadge}>{item.hangerNumber}</Text>
@@ -73,14 +77,14 @@ export default function ListScreen() {
         <View style={styles.infoRow}>
           <Clock size={18} color={Colors.dark.textSecondary} />
           <Text style={styles.infoText}>
-            Déposée {formatDate(item.depositTime)}
+            {language === 'fr' ? 'Déposée' : 'Deposited'} {formatDate(item.depositTime)}
           </Text>
         </View>
         {item.retrievalTime && (
           <View style={styles.infoRow}>
             <CheckCircle size={18} color={Colors.dark.success} />
             <Text style={styles.infoText}>
-              Récupérée {formatDate(item.retrievalTime)}
+              {language === 'fr' ? 'Récupérée' : 'Retrieved'} {formatDate(item.retrievalTime)}
             </Text>
           </View>
         )}
@@ -91,9 +95,9 @@ export default function ListScreen() {
   if (isLoading) {
     return (
       <View style={styles.container}>
-        <Stack.Screen options={{ title: 'Liste des vestes' }} />
+        <Stack.Screen options={{ title: t.list.title }} />
         <View style={styles.centerContainer}>
-          <Text style={styles.loadingText}>Chargement...</Text>
+          <Text style={styles.loadingText}>{t.common.loading}</Text>
         </View>
       </View>
     );
@@ -101,7 +105,7 @@ export default function ListScreen() {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ title: 'Liste des vestes' }} />
+      <Stack.Screen options={{ title: t.list.title }} />
       
       <View style={styles.filterContainer}>
         <Pressable
@@ -116,7 +120,7 @@ export default function ListScreen() {
             styles.filterButtonText,
             filter === 'all' && styles.filterButtonTextActive
           ]}>
-            Toutes ({jackets.length})
+            {t.list.all} ({jackets.length})
           </Text>
         </Pressable>
 
@@ -132,7 +136,7 @@ export default function ListScreen() {
             styles.filterButtonText,
             filter === 'active' && styles.filterButtonTextActive
           ]}>
-            Actives ({jackets.filter(j => j.status === 'active').length})
+            {t.list.active} ({jackets.filter(j => j.status === 'active').length})
           </Text>
         </Pressable>
 
@@ -148,7 +152,7 @@ export default function ListScreen() {
             styles.filterButtonText,
             filter === 'retrieved' && styles.filterButtonTextActive
           ]}>
-            Récupérées ({jackets.filter(j => j.status === 'retrieved').length})
+            {t.list.retrieved} ({jackets.filter(j => j.status === 'retrieved').length})
           </Text>
         </Pressable>
       </View>
@@ -156,13 +160,13 @@ export default function ListScreen() {
       {filteredJackets.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Package size={64} color={Colors.dark.textTertiary} />
-          <Text style={styles.emptyTitle}>Aucune veste</Text>
+          <Text style={styles.emptyTitle}>{t.list.noJackets}</Text>
           <Text style={styles.emptyText}>
             {filter === 'all' 
-              ? 'Commencez par enregistrer un dépôt'
+              ? (language === 'fr' ? 'Commencez par enregistrer un dépôt' : 'Start by registering a deposit')
               : filter === 'active'
-              ? 'Aucune veste active pour le moment'
-              : 'Aucune veste récupérée pour le moment'
+              ? (language === 'fr' ? 'Aucune veste active pour le moment' : 'No active jackets at the moment')
+              : (language === 'fr' ? 'Aucune veste récupérée pour le moment' : 'No retrieved jackets at the moment')
             }
           </Text>
         </View>

@@ -5,12 +5,16 @@ import { useRouter } from 'expo-router';
 import { LogIn } from 'lucide-react-native';
 import Colors from '@/constants/colors';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useTranslations } from '@/constants/translations';
 
 export default function LoginScreen() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { login, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { language } = useLanguage();
+  const t = useTranslations(language);
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
@@ -22,7 +26,7 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     if (!username.trim() || !password.trim()) {
-      Alert.alert('Erreur', 'Veuillez remplir tous les champs');
+      Alert.alert(language === 'fr' ? 'Erreur' : 'Error', language === 'fr' ? 'Veuillez remplir tous les champs' : 'Please fill in all fields');
       return;
     }
 
@@ -33,7 +37,7 @@ export default function LoginScreen() {
     if (success) {
       router.replace('/(tabs)');
     } else {
-      Alert.alert('Erreur', 'Identifiants incorrects');
+      Alert.alert(language === 'fr' ? 'Erreur' : 'Error', t.auth.invalidCredentials);
     }
   };
 
@@ -50,17 +54,17 @@ export default function LoginScreen() {
         <View style={styles.logoContainer}>
           <LogIn size={64} color={Colors.dark.tint} />
           <Text style={styles.title}>MyJacket</Text>
-          <Text style={styles.subtitle}>Gestion de vestiaire</Text>
+          <Text style={styles.subtitle}>{language === 'fr' ? 'Gestion de vestiaire' : 'Cloakroom management'}</Text>
         </View>
 
         <View style={styles.form}>
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Nom d'utilisateur</Text>
+            <Text style={styles.label}>{t.auth.username}</Text>
             <TextInput
               style={styles.input}
               value={username}
               onChangeText={setUsername}
-              placeholder="Entrez votre nom d'utilisateur"
+              placeholder={language === 'fr' ? "Entrez votre nom d'utilisateur" : 'Enter your username'}
               placeholderTextColor={Colors.dark.tabIconDefault}
               autoCapitalize="none"
               editable={!isLoading}
@@ -69,12 +73,12 @@ export default function LoginScreen() {
           </View>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Mot de passe</Text>
+            <Text style={styles.label}>{t.auth.password}</Text>
             <TextInput
               style={styles.input}
               value={password}
               onChangeText={setPassword}
-              placeholder="Entrez votre mot de passe"
+              placeholder={language === 'fr' ? 'Entrez votre mot de passe' : 'Enter your password'}
               placeholderTextColor={Colors.dark.tabIconDefault}
               secureTextEntry
               editable={!isLoading}
@@ -89,7 +93,7 @@ export default function LoginScreen() {
             testID="login-button"
           >
             <Text style={styles.buttonText}>
-              {isLoading ? 'Connexion...' : 'Se connecter'}
+              {isLoading ? (language === 'fr' ? 'Connexion...' : 'Logging in...') : t.auth.loginButton}
             </Text>
           </TouchableOpacity>
         </View>

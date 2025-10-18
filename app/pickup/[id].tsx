@@ -4,6 +4,8 @@ import { Stack, useLocalSearchParams, router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Package, Phone, Hash, Clock, CheckCircle, XCircle } from 'lucide-react-native';
 import { useJackets } from '@/contexts/JacketContext';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useTranslations } from '@/constants/translations';
 import Colors from '@/constants/colors';
 import type { Jacket } from '@/types/jacket';
 
@@ -11,6 +13,8 @@ export default function PickupScreen() {
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { jackets, retrieveJacket } = useJackets();
+  const { language } = useLanguage();
+  const t = useTranslations(language);
   const [jacket, setJacket] = useState<Jacket | null>(null);
 
   useEffect(() => {
@@ -22,20 +26,20 @@ export default function PickupScreen() {
     if (!jacket) return;
 
     Alert.alert(
-      'Confirmer la récupération',
-      'Le client a-t-il bien récupéré sa veste ?',
+      t.pickup.confirmPickup,
+      language === 'fr' ? 'Le client a-t-il bien récupéré sa veste ?' : 'Has the customer retrieved their jacket?',
       [
         {
-          text: 'Annuler',
+          text: t.common.cancel,
           style: 'cancel'
         },
         {
-          text: 'Confirmer',
+          text: t.common.confirm,
           onPress: () => {
             retrieveJacket(jacket.id);
             Alert.alert(
-              'Récupération confirmée',
-              'La veste a été marquée comme récupérée.',
+              language === 'fr' ? 'Récupération confirmée' : 'Pickup confirmed',
+              language === 'fr' ? 'La veste a été marquée comme récupérée.' : 'The jacket has been marked as retrieved.',
               [
                 {
                   text: 'OK',
@@ -52,12 +56,12 @@ export default function PickupScreen() {
   if (!jacket) {
     return (
       <View style={[styles.container, Platform.OS === 'web' && { paddingTop: insets.top }]}>
-        <Stack.Screen options={{ title: 'Veste introuvable' }} />
+        <Stack.Screen options={{ title: t.pickup.notFound }} />
         <View style={styles.errorContainer}>
           <XCircle size={64} color={Colors.dark.error} />
-          <Text style={styles.errorTitle}>Veste introuvable</Text>
+          <Text style={styles.errorTitle}>{t.pickup.notFound}</Text>
           <Text style={styles.errorText}>
-            Le QR code scanné ne correspond à aucune veste enregistrée.
+            {language === 'fr' ? 'Le QR code scanné ne correspond à aucune veste enregistrée.' : 'The scanned QR code does not match any registered jacket.'}
           </Text>
           <Pressable
             style={({ pressed }) => [
@@ -66,7 +70,7 @@ export default function PickupScreen() {
             ]}
             onPress={() => router.push('/')}
           >
-            <Text style={styles.backButtonText}>Retour à l'accueil</Text>
+            <Text style={styles.backButtonText}>{language === 'fr' ? 'Retour à l\'accueil' : 'Back to home'}</Text>
           </Pressable>
         </View>
       </View>
@@ -76,12 +80,14 @@ export default function PickupScreen() {
   if (jacket.status === 'retrieved') {
     return (
       <View style={[styles.container, Platform.OS === 'web' && { paddingTop: insets.top }]}>
-        <Stack.Screen options={{ title: 'Déjà récupérée' }} />
+        <Stack.Screen options={{ title: language === 'fr' ? 'Déjà récupérée' : 'Already retrieved' }} />
         <View style={styles.errorContainer}>
           <CheckCircle size={64} color={Colors.dark.warning} />
-          <Text style={styles.errorTitle}>Veste déjà récupérée</Text>
+          <Text style={styles.errorTitle}>{t.pickup.alreadyRetrieved}</Text>
           <Text style={styles.errorText}>
-            Cette veste a déjà été récupérée le {new Date(jacket.retrievalTime!).toLocaleString('fr-FR')}.
+            {language === 'fr' 
+              ? `Cette veste a déjà été récupérée le ${new Date(jacket.retrievalTime!).toLocaleString('fr-FR')}.`
+              : `This jacket was already retrieved on ${new Date(jacket.retrievalTime!).toLocaleString('en-US')}.`}
           </Text>
           <Pressable
             style={({ pressed }) => [
@@ -90,7 +96,7 @@ export default function PickupScreen() {
             ]}
             onPress={() => router.push('/')}
           >
-            <Text style={styles.backButtonText}>Retour à l'accueil</Text>
+            <Text style={styles.backButtonText}>{language === 'fr' ? 'Retour à l\'accueil' : 'Back to home'}</Text>
           </Pressable>
         </View>
       </View>
@@ -102,7 +108,7 @@ export default function PickupScreen() {
 
   return (
     <View style={[styles.container, Platform.OS === 'web' && { paddingTop: insets.top }]}>
-      <Stack.Screen options={{ title: 'Récupération' }} />
+      <Stack.Screen options={{ title: t.pickup.title }} />
       <ScrollView 
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -112,15 +118,15 @@ export default function PickupScreen() {
           <View style={styles.iconContainer}>
             <Package size={48} color={Colors.dark.primary} />
           </View>
-          <Text style={styles.title}>Veste à récupérer</Text>
-          <Text style={styles.subtitle}>Vérifiez les informations ci-dessous</Text>
+          <Text style={styles.title}>{language === 'fr' ? 'Veste à récupérer' : 'Jacket to retrieve'}</Text>
+          <Text style={styles.subtitle}>{language === 'fr' ? 'Vérifiez les informations ci-dessous' : 'Check the information below'}</Text>
         </View>
 
         <View style={styles.infoCard}>
           <View style={styles.infoRow}>
             <Hash size={24} color={Colors.dark.primary} />
             <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Numéro de cintre</Text>
+              <Text style={styles.infoLabel}>{language === 'fr' ? 'Numéro de cintre' : 'Hanger number'}</Text>
               <Text style={styles.infoValue}>{jacket.hangerNumber}</Text>
             </View>
           </View>
@@ -130,7 +136,7 @@ export default function PickupScreen() {
           <View style={styles.infoRow}>
             <Phone size={24} color={Colors.dark.primary} />
             <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Téléphone du client</Text>
+              <Text style={styles.infoLabel}>{language === 'fr' ? 'Téléphone du client' : 'Customer phone'}</Text>
               <Text style={styles.infoValue}>
                 {jacket.countryCode} {jacket.phoneNumber}
               </Text>
@@ -142,7 +148,7 @@ export default function PickupScreen() {
           <View style={styles.infoRow}>
             <Clock size={24} color={Colors.dark.primary} />
             <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Déposée le</Text>
+              <Text style={styles.infoLabel}>{language === 'fr' ? 'Déposée le' : 'Deposited on'}</Text>
               <Text style={styles.infoValue}>
                 {depositDate.toLocaleString('fr-FR')}
               </Text>
@@ -154,11 +160,11 @@ export default function PickupScreen() {
         </View>
 
         <View style={styles.instructionBox}>
-          <Text style={styles.instructionTitle}>📋 Instructions</Text>
+          <Text style={styles.instructionTitle}>📋 {language === 'fr' ? 'Instructions' : 'Instructions'}</Text>
           <Text style={styles.instructionText}>
-            1. Vérifiez le numéro de cintre{'\n'}
-            2. Récupérez la veste correspondante{'\n'}
-            3. Confirmez la remise au client
+            {language === 'fr' 
+              ? '1. Vérifiez le numéro de cintre\n2. Récupérez la veste correspondante\n3. Confirmez la remise au client'
+              : '1. Check the hanger number\n2. Retrieve the corresponding jacket\n3. Confirm delivery to customer'}
           </Text>
         </View>
 
@@ -170,7 +176,7 @@ export default function PickupScreen() {
           onPress={handlePickup}
         >
           <CheckCircle size={20} color={Colors.dark.text} />
-          <Text style={styles.confirmButtonText}>Confirmer la récupération</Text>
+          <Text style={styles.confirmButtonText}>{t.pickup.confirm}</Text>
         </Pressable>
       </ScrollView>
     </View>

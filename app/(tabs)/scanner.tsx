@@ -4,10 +4,14 @@ import { useState } from 'react';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { ScanLine, CheckCircle, XCircle, Camera } from 'lucide-react-native';
 import { useJackets } from '@/contexts/JacketContext';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useTranslations } from '@/constants/translations';
 import Colors from '@/constants/colors';
 
 export default function ScannerScreen() {
   const { getJacketByQR, retrieveJacket } = useJackets();
+  const { language } = useLanguage();
+  const t = useTranslations(language);
   const [facing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
@@ -16,9 +20,9 @@ export default function ScannerScreen() {
   if (!permission) {
     return (
       <View style={styles.container}>
-        <Stack.Screen options={{ title: 'Scanner' }} />
+        <Stack.Screen options={{ title: t.scanner.title }} />
         <View style={styles.centerContainer}>
-          <Text style={styles.loadingText}>Chargement...</Text>
+          <Text style={styles.loadingText}>{t.common.loading}</Text>
         </View>
       </View>
     );
@@ -27,12 +31,12 @@ export default function ScannerScreen() {
   if (!permission.granted) {
     return (
       <View style={styles.container}>
-        <Stack.Screen options={{ title: 'Scanner' }} />
+        <Stack.Screen options={{ title: t.scanner.title }} />
         <View style={styles.centerContainer}>
           <Camera size={64} color={Colors.dark.textSecondary} />
-          <Text style={styles.permissionTitle}>Accès à la caméra requis</Text>
+          <Text style={styles.permissionTitle}>{t.scanner.permission}</Text>
           <Text style={styles.permissionText}>
-            Nous avons besoin de votre permission pour scanner les QR codes
+            {language === 'fr' ? 'Nous avons besoin de votre permission pour scanner les QR codes' : 'We need your permission to scan QR codes'}
           </Text>
           <Pressable
             style={({ pressed }) => [
@@ -41,7 +45,7 @@ export default function ScannerScreen() {
             ]}
             onPress={requestPermission}
           >
-            <Text style={styles.permissionButtonText}>Autoriser la caméra</Text>
+            <Text style={styles.permissionButtonText}>{t.scanner.grantPermission}</Text>
           </Pressable>
         </View>
       </View>
@@ -67,7 +71,7 @@ export default function ScannerScreen() {
     if (!jacket) {
       setScanResult({
         success: false,
-        message: 'QR code invalide ou veste non trouvée',
+        message: language === 'fr' ? 'QR code invalide ou veste non trouvée' : 'Invalid QR code or jacket not found',
       });
       return;
     }
@@ -75,7 +79,7 @@ export default function ScannerScreen() {
     if (jacket.status === 'retrieved') {
       setScanResult({
         success: false,
-        message: 'Cette veste a déjà été récupérée',
+        message: t.pickup.alreadyRetrieved,
         hangerNumber: jacket.hangerNumber,
       });
       return;
@@ -84,7 +88,7 @@ export default function ScannerScreen() {
     retrieveJacket(jacket.id);
     setScanResult({
       success: true,
-      message: 'Veste récupérée avec succès !',
+      message: t.pickup.success,
       hangerNumber: jacket.hangerNumber,
     });
   };
@@ -101,7 +105,7 @@ export default function ScannerScreen() {
   if (scanResult) {
     return (
       <View style={styles.container}>
-        <Stack.Screen options={{ title: 'Résultat du scan' }} />
+        <Stack.Screen options={{ title: language === 'fr' ? 'Résultat du scan' : 'Scan result' }} />
         <View style={styles.resultContainer}>
           <View style={styles.resultIcon}>
             {scanResult.success ? (
@@ -115,14 +119,14 @@ export default function ScannerScreen() {
             styles.resultTitle,
             { color: scanResult.success ? Colors.dark.success : Colors.dark.error }
           ]}>
-            {scanResult.success ? 'Succès !' : 'Erreur'}
+            {scanResult.success ? (language === 'fr' ? 'Succès !' : 'Success!') : (language === 'fr' ? 'Erreur' : 'Error')}
           </Text>
 
           <Text style={styles.resultMessage}>{scanResult.message}</Text>
 
           {scanResult.hangerNumber && (
             <View style={styles.hangerCard}>
-              <Text style={styles.hangerLabel}>Numéro de cintre</Text>
+              <Text style={styles.hangerLabel}>{language === 'fr' ? 'Numéro de cintre' : 'Hanger number'}</Text>
               <Text style={styles.hangerNumber}>{scanResult.hangerNumber}</Text>
             </View>
           )}
@@ -137,7 +141,7 @@ export default function ScannerScreen() {
               onPress={handleReset}
             >
               <ScanLine size={20} color={Colors.dark.text} />
-              <Text style={styles.resultButtonText}>Scanner à nouveau</Text>
+              <Text style={styles.resultButtonText}>{language === 'fr' ? 'Scanner à nouveau' : 'Scan again'}</Text>
             </Pressable>
 
             <Pressable
@@ -147,7 +151,7 @@ export default function ScannerScreen() {
               ]}
               onPress={handleViewList}
             >
-              <Text style={styles.resultButtonTextSecondary}>Voir la liste</Text>
+              <Text style={styles.resultButtonTextSecondary}>{language === 'fr' ? 'Voir la liste' : 'View list'}</Text>
             </Pressable>
           </View>
         </View>
@@ -157,7 +161,7 @@ export default function ScannerScreen() {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ title: 'Scanner QR Code' }} />
+      <Stack.Screen options={{ title: t.scanner.title }} />
       
       <View style={styles.cameraContainer}>
         <CameraView
@@ -181,9 +185,9 @@ export default function ScannerScreen() {
 
       <View style={styles.instructions}>
         <ScanLine size={24} color={Colors.dark.primary} />
-        <Text style={styles.instructionsTitle}>Scannez le QR code</Text>
+        <Text style={styles.instructionsTitle}>{language === 'fr' ? 'Scannez le QR code' : 'Scan the QR code'}</Text>
         <Text style={styles.instructionsText}>
-          Positionnez le QR code dans le cadre pour récupérer la veste
+          {language === 'fr' ? 'Positionnez le QR code dans le cadre pour récupérer la veste' : 'Position the QR code in the frame to retrieve the jacket'}
         </Text>
       </View>
     </View>

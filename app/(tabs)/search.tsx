@@ -3,6 +3,8 @@ import { Stack } from 'expo-router';
 import { useState, useEffect } from 'react';
 import { Search, Phone, Hash, Package, CheckCircle, Clock, ChevronDown, X } from 'lucide-react-native';
 import { useJackets } from '@/contexts/JacketContext';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useTranslations } from '@/constants/translations';
 import { Jacket } from '@/types/jacket';
 import Colors from '@/constants/colors';
 import { countries, Country } from '@/constants/countries';
@@ -10,6 +12,8 @@ import QRCode from 'react-native-qrcode-svg';
 
 export default function SearchScreen() {
   const { jackets } = useJackets();
+  const { language } = useLanguage();
+  const t = useTranslations(language);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCountry, setSelectedCountry] = useState<Country>(countries[0]);
   const [showCountryPicker, setShowCountryPicker] = useState(false);
@@ -118,7 +122,7 @@ export default function SearchScreen() {
             styles.statusText,
             item.status === 'active' ? styles.statusTextActive : styles.statusTextRetrieved
           ]}>
-            {item.status === 'active' ? 'Active' : 'Récupérée'}
+            {item.status === 'active' ? t.list.active : t.list.retrieved}
           </Text>
         </View>
         <Text style={styles.hangerNumberBadge}>{item.hangerNumber}</Text>
@@ -132,7 +136,7 @@ export default function SearchScreen() {
         <View style={styles.infoRow}>
           <Clock size={18} color={Colors.dark.textSecondary} />
           <Text style={styles.infoText}>
-            Déposée {formatDate(item.depositTime)}
+            {language === 'fr' ? 'Déposée' : 'Deposited'} {formatDate(item.depositTime)}
           </Text>
         </View>
       </View>
@@ -146,12 +150,12 @@ export default function SearchScreen() {
       keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
       {...panResponder.panHandlers}
     >
-      <Stack.Screen options={{ title: 'Recherche' }} />
+      <Stack.Screen options={{ title: t.search.title }} />
       
       <View style={styles.searchSection}>
-        <Text style={styles.searchTitle}>Rechercher par téléphone</Text>
+        <Text style={styles.searchTitle}>{language === 'fr' ? 'Rechercher par téléphone' : 'Search by phone'}</Text>
         <Text style={styles.searchSubtitle}>
-          Retrouvez une veste en cas de perte de ticket
+          {language === 'fr' ? 'Retrouvez une veste en cas de perte de ticket' : 'Find a jacket if the ticket is lost'}
         </Text>
 
         <View style={styles.phoneInputRow}>
@@ -172,7 +176,7 @@ export default function SearchScreen() {
               style={styles.searchInput}
               value={searchQuery}
               onChangeText={handleSearchChange}
-              placeholder="Entrez le numéro..."
+              placeholder={language === 'fr' ? 'Entrez le numéro...' : 'Enter the number...'}
               placeholderTextColor={Colors.dark.textTertiary}
               keyboardType="phone-pad"
               maxLength={15}
@@ -189,23 +193,23 @@ export default function SearchScreen() {
       {searchQuery.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Search size={64} color={Colors.dark.textTertiary} />
-          <Text style={styles.emptyTitle}>Rechercher une veste</Text>
+          <Text style={styles.emptyTitle}>{language === 'fr' ? 'Rechercher une veste' : 'Search for a jacket'}</Text>
           <Text style={styles.emptyText}>
-            Entrez un numéro de téléphone pour retrouver les vestes associées
+            {language === 'fr' ? 'Entrez un numéro de téléphone pour retrouver les vestes associées' : 'Enter a phone number to find associated jackets'}
           </Text>
         </View>
       ) : filteredJackets.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Package size={64} color={Colors.dark.textTertiary} />
-          <Text style={styles.emptyTitle}>Aucun résultat</Text>
+          <Text style={styles.emptyTitle}>{t.common.noResults}</Text>
           <Text style={styles.emptyText}>
-            Aucune veste trouvée pour ce numéro de téléphone
+            {t.search.noResults}
           </Text>
         </View>
       ) : (
         <View style={styles.resultsContainer}>
           <Text style={styles.resultsCount}>
-            {filteredJackets.length} résultat{filteredJackets.length > 1 ? 's' : ''} trouvé{filteredJackets.length > 1 ? 's' : ''}
+            {filteredJackets.length} {language === 'fr' ? `résultat${filteredJackets.length > 1 ? 's' : ''} trouvé${filteredJackets.length > 1 ? 's' : ''}` : `result${filteredJackets.length > 1 ? 's' : ''} found`}
           </Text>
           <FlatList
             data={filteredJackets}
@@ -226,7 +230,7 @@ export default function SearchScreen() {
             ]}
             onPress={() => Keyboard.dismiss()}
           >
-            <Text style={styles.dismissButtonText}>Terminé</Text>
+            <Text style={styles.dismissButtonText}>{language === 'fr' ? 'Terminé' : 'Done'}</Text>
           </Pressable>
         </View>
       )}
@@ -240,7 +244,7 @@ export default function SearchScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Sélectionner un pays</Text>
+              <Text style={styles.modalTitle}>{t.deposit.selectCountry}</Text>
               <Pressable
                 style={styles.modalCloseButton}
                 onPress={() => {
@@ -258,7 +262,7 @@ export default function SearchScreen() {
                 style={styles.countrySearchInput}
                 value={countrySearch}
                 onChangeText={setCountrySearch}
-                placeholder="Rechercher un pays..."
+                placeholder={language === 'fr' ? 'Rechercher un pays...' : 'Search a country...'}
                 placeholderTextColor={Colors.dark.textTertiary}
               />
               {countrySearch.length > 0 && (
@@ -304,7 +308,7 @@ export default function SearchScreen() {
           />
           <View style={styles.detailModalContent}>
             <View style={styles.detailModalHeader}>
-              <Text style={styles.detailModalTitle}>Détails de la veste</Text>
+              <Text style={styles.detailModalTitle}>{language === 'fr' ? 'Détails de la veste' : 'Jacket details'}</Text>
               <Pressable
                 style={styles.modalCloseButton}
                 onPress={() => setSelectedJacket(null)}
@@ -330,19 +334,19 @@ export default function SearchScreen() {
                 <View style={styles.detailCard}>
                   <View style={styles.detailRow}>
                     <Hash size={20} color={Colors.dark.textSecondary} />
-                    <Text style={styles.detailLabel}>Cintre</Text>
+                    <Text style={styles.detailLabel}>{language === 'fr' ? 'Cintre' : 'Hanger'}</Text>
                     <Text style={styles.detailValue}>{selectedJacket.hangerNumber}</Text>
                   </View>
                   <View style={styles.detailRow}>
                     <Phone size={20} color={Colors.dark.textSecondary} />
-                    <Text style={styles.detailLabel}>Téléphone</Text>
+                    <Text style={styles.detailLabel}>{t.deposit.ownerPhone}</Text>
                     <Text style={styles.detailValue}>
                       {selectedJacket.countryCode} {selectedJacket.phoneNumber}
                     </Text>
                   </View>
                   <View style={styles.detailRow}>
                     <Clock size={20} color={Colors.dark.textSecondary} />
-                    <Text style={styles.detailLabel}>Dépôt</Text>
+                    <Text style={styles.detailLabel}>{language === 'fr' ? 'Dépôt' : 'Deposit'}</Text>
                     <Text style={styles.detailValue}>
                       {formatDate(selectedJacket.depositTime)}
                     </Text>
@@ -353,20 +357,20 @@ export default function SearchScreen() {
                     ) : (
                       <CheckCircle size={20} color={Colors.dark.success} />
                     )}
-                    <Text style={styles.detailLabel}>Statut</Text>
+                    <Text style={styles.detailLabel}>{language === 'fr' ? 'Statut' : 'Status'}</Text>
                     <Text style={[
                       styles.detailValue,
                       selectedJacket.status === 'active' 
                         ? styles.detailValueActive 
                         : styles.detailValueRetrieved
                     ]}>
-                      {selectedJacket.status === 'active' ? 'Active' : 'Récupérée'}
+                      {selectedJacket.status === 'active' ? t.list.active : t.list.retrieved}
                     </Text>
                   </View>
                   {selectedJacket.retrievalTime && (
                     <View style={styles.detailRow}>
                       <CheckCircle size={20} color={Colors.dark.success} />
-                      <Text style={styles.detailLabel}>Récupération</Text>
+                      <Text style={styles.detailLabel}>{language === 'fr' ? 'Récupération' : 'Retrieval'}</Text>
                       <Text style={styles.detailValue}>
                         {formatDate(selectedJacket.retrievalTime)}
                       </Text>

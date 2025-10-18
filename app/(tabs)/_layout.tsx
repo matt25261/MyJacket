@@ -5,9 +5,13 @@ import { View, ActivityIndicator, StyleSheet } from "react-native";
 
 import Colors from "@/constants/colors";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useTranslations } from "@/constants/translations";
 
 export default function TabLayout() {
   const { isAuthenticated, isLoading } = useAuth();
+  const { language } = useLanguage();
+  const t = useTranslations(language);
   const router = useRouter();
 
   useEffect(() => {
@@ -50,42 +54,42 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Dashboard",
+          title: t.tabs.dashboard,
           tabBarIcon: ({ color }) => <LayoutDashboard size={24} color={color} />,
         }}
       />
       <Tabs.Screen
         name="deposit"
         options={{
-          title: "Dépôt",
+          title: t.tabs.deposit,
           tabBarIcon: ({ color }) => <Package size={24} color={color} />,
         }}
       />
       <Tabs.Screen
         name="scanner"
         options={{
-          title: "Scanner",
+          title: t.tabs.scanner,
           tabBarIcon: ({ color }) => <ScanLine size={24} color={color} />,
         }}
       />
       <Tabs.Screen
         name="search"
         options={{
-          title: "Recherche",
+          title: t.tabs.search,
           tabBarIcon: ({ color }) => <Search size={24} color={color} />,
         }}
       />
       <Tabs.Screen
         name="list"
         options={{
-          title: "Liste",
+          title: t.tabs.list,
           tabBarIcon: ({ color }) => <List size={24} color={color} />,
         }}
       />
       <Tabs.Screen
         name="statistics"
         options={{
-          title: "Statistiques",
+          title: t.tabs.statistics,
           tabBarIcon: ({ color }) => <BarChart3 size={24} color={color} />,
         }}
       />
