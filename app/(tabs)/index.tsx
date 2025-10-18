@@ -69,21 +69,7 @@ export default function DashboardScreen() {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen 
-        options={{ 
-          title: 'MyJacket',
-          headerRight: () => (
-            <View style={{ flexDirection: 'row', gap: 16, marginRight: 16 }}>
-              <Pressable onPress={handleLanguageChange}>
-                <Languages size={24} color={Colors.dark.text} />
-              </Pressable>
-              <Pressable onPress={handleLogout}>
-                <LogOut size={24} color={Colors.dark.text} />
-              </Pressable>
-            </View>
-          ),
-        }} 
-      />
+      <Stack.Screen options={{ title: 'MyJacket' }} />
       <ScrollView 
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -105,13 +91,20 @@ export default function DashboardScreen() {
               <Text style={styles.userName}>{user?.username}</Text>
               <Text style={styles.userEmail}>{user?.email}</Text>
             </View>
-            <Pressable 
-              onPress={handleLogout}
-              style={({ pressed }) => [styles.logoutButton, pressed && styles.logoutButtonPressed]}
-            >
-              <LogOut size={20} color={Colors.dark.error} />
-              <Text style={styles.logoutText}>{t.auth.logout}</Text>
-            </Pressable>
+            <View style={styles.userActions}>
+              <Pressable 
+                onPress={handleLanguageChange}
+                style={({ pressed }) => [styles.languageButton, pressed && styles.buttonPressed]}
+              >
+                <Languages size={20} color={Colors.dark.primary} />
+              </Pressable>
+              <Pressable 
+                onPress={handleLogout}
+                style={({ pressed }) => [styles.logoutButton, pressed && styles.buttonPressed]}
+              >
+                <LogOut size={20} color={Colors.dark.error} />
+              </Pressable>
+            </View>
           </View>
         </View>
 
@@ -262,22 +255,28 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.dark.textSecondary,
   },
-  logoutButton: {
+  userActions: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: Colors.dark.error + '15',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    gap: 8,
+  },
+  languageButton: {
+    width: 40,
+    height: 40,
     borderRadius: 8,
+    backgroundColor: Colors.dark.primary + '15',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  logoutButtonPressed: {
+  logoutButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 8,
+    backgroundColor: Colors.dark.error + '15',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  buttonPressed: {
     opacity: 0.7,
-  },
-  logoutText: {
-    fontSize: 14,
-    fontWeight: '600' as const,
-    color: Colors.dark.error,
   },
   statsGrid: {
     flexDirection: 'row',
