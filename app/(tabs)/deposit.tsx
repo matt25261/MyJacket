@@ -448,12 +448,17 @@ export default function DepositScreen() {
       </ScrollView>
 
       {isKeyboardVisible && (
-        <Pressable
-          style={styles.keyboardToolbar}
-          onPress={() => Keyboard.dismiss()}
-        >
-          <View style={styles.dismissHandle} />
-        </Pressable>
+        <View style={styles.keyboardToolbar}>
+          <Pressable
+            style={({ pressed }) => [
+              styles.dismissButton,
+              pressed && styles.dismissButtonPressed
+            ]}
+            onPress={() => Keyboard.dismiss()}
+          >
+            <Text style={styles.dismissButtonText}>{t.common.done}</Text>
+          </Pressable>
+        </View>
       )}
 
       <Modal
@@ -890,29 +895,28 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: Colors.dark.card,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    backgroundColor: Colors.dark.background,
     borderTopWidth: 1,
     borderTopColor: Colors.dark.border,
-    paddingVertical: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: -4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    paddingBottom: Platform.OS === 'ios' ? 8 : 8,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
   },
-  dismissHandle: {
-    width: 80,
-    height: 6,
-    backgroundColor: Colors.dark.text,
-    borderRadius: 4,
-    opacity: 0.6,
+  dismissButton: {
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    borderRadius: 8,
+    backgroundColor: Colors.dark.primary,
+  },
+  dismissButtonPressed: {
+    backgroundColor: Colors.dark.primaryDark,
+  },
+  dismissButtonText: {
+    fontSize: 16,
+    fontWeight: '600' as const,
+    color: Colors.dark.text,
   },
   verificationOverlay: {
     flex: 1,

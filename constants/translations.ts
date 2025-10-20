@@ -13,6 +13,7 @@ export const translations = {
       loading: 'Chargement...',
       search: 'Rechercher',
       noResults: 'Aucun résultat',
+      done: 'Terminé',
     },
     tabs: {
       dashboard: 'Dashboard',
@@ -128,6 +129,7 @@ export const translations = {
       loading: 'Loading...',
       search: 'Search',
       noResults: 'No results',
+      done: 'Done',
     },
     tabs: {
       dashboard: 'Dashboard',
