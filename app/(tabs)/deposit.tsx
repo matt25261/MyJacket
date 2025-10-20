@@ -448,17 +448,12 @@ export default function DepositScreen() {
       </ScrollView>
 
       {isKeyboardVisible && (
-        <View style={styles.keyboardToolbar}>
-          <Pressable
-            style={({ pressed }) => [
-              styles.dismissButton,
-              pressed && styles.dismissButtonPressed
-            ]}
-            onPress={() => Keyboard.dismiss()}
-          >
-            <Text style={styles.dismissButtonText}>{language === 'fr' ? 'Terminé' : 'Done'}</Text>
-          </Pressable>
-        </View>
+        <Pressable
+          style={styles.keyboardToolbar}
+          onPress={() => Keyboard.dismiss()}
+        >
+          <View style={styles.dismissHandle} />
+        </Pressable>
       )}
 
       <Modal
@@ -896,26 +891,20 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     backgroundColor: Colors.dark.card,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
     borderTopWidth: 1,
     borderTopColor: Colors.dark.border,
-    paddingHorizontal: 16,
     paddingVertical: 12,
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  dismissButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    backgroundColor: Colors.dark.primary,
-  },
-  dismissButtonPressed: {
-    backgroundColor: Colors.dark.primaryDark,
-  },
-  dismissButtonText: {
-    fontSize: 16,
-    fontWeight: '600' as const,
-    color: Colors.dark.text,
+  dismissHandle: {
+    width: 40,
+    height: 5,
+    backgroundColor: Colors.dark.text,
+    borderRadius: 2.5,
+    opacity: 0.3,
   },
   verificationOverlay: {
     flex: 1,
