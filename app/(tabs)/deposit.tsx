@@ -447,17 +447,19 @@ export default function DepositScreen() {
         </View>
       </ScrollView>
 
-      {isKeyboardVisible && (
-        <View style={styles.keyboardToolbar}>
-          <Pressable
-            style={({ pressed }) => [
-              styles.dismissButton,
-              pressed && styles.dismissButtonPressed
-            ]}
-            onPress={() => Keyboard.dismiss()}
-          >
-            <Text style={styles.dismissButtonText}>{t.common.done}</Text>
-          </Pressable>
+      {isKeyboardVisible && Platform.OS === 'ios' && (
+        <View style={styles.keyboardAccessory}>
+          <View style={styles.accessoryContainer}>
+            <Pressable
+              style={({ pressed }) => [
+                styles.accessoryButton,
+                pressed && styles.accessoryButtonPressed
+              ]}
+              onPress={() => Keyboard.dismiss()}
+            >
+              <Text style={styles.accessoryButtonText}>{t.common.done}</Text>
+            </Pressable>
+          </View>
         </View>
       )}
 
@@ -890,28 +892,30 @@ const styles = StyleSheet.create({
     fontWeight: '600' as const,
     color: Colors.dark.text,
   },
-  keyboardToolbar: {
-    backgroundColor: Colors.dark.card,
-    borderTopWidth: 1,
-    borderTopColor: Colors.dark.border,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+  keyboardAccessory: {
+    backgroundColor: 'rgba(209, 209, 214, 0.98)',
+    borderTopWidth: 0.5,
+    borderTopColor: 'rgba(0, 0, 0, 0.3)',
+  },
+  accessoryContainer: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
-  },
-  dismissButton: {
-    paddingHorizontal: 20,
+    alignItems: 'center',
+    paddingHorizontal: 8,
     paddingVertical: 8,
-    borderRadius: 8,
-    backgroundColor: Colors.dark.primary,
+    minHeight: 44,
   },
-  dismissButtonPressed: {
-    backgroundColor: Colors.dark.primaryDark,
+  accessoryButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
   },
-  dismissButtonText: {
-    fontSize: 16,
+  accessoryButtonPressed: {
+    opacity: 0.4,
+  },
+  accessoryButtonText: {
+    fontSize: 17,
     fontWeight: '600' as const,
-    color: Colors.dark.text,
+    color: '#007AFF',
   },
   verificationOverlay: {
     flex: 1,
