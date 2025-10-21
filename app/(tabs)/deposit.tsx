@@ -447,19 +447,18 @@ export default function DepositScreen() {
         </View>
       </ScrollView>
 
-      {isKeyboardVisible && Platform.OS === 'ios' && (
-        <View style={styles.keyboardAccessory}>
-          <View style={styles.accessoryContainer}>
-            <Pressable
-              style={({ pressed }) => [
-                styles.accessoryButton,
-                pressed && styles.accessoryButtonPressed
-              ]}
-              onPress={() => Keyboard.dismiss()}
-            >
-              <Text style={styles.accessoryButtonText}>{t.common.done}</Text>
-            </Pressable>
-          </View>
+      {isKeyboardVisible && (
+        <View style={styles.keyboardToolbar}>
+          <Pressable
+            style={({ pressed }) => [
+              styles.toolbarButton,
+              pressed && styles.toolbarButtonPressed
+            ]}
+            onPress={() => Keyboard.dismiss()}
+          >
+            <X size={20} color={Colors.dark.text} />
+            <Text style={styles.toolbarButtonText}>{language === 'fr' ? 'Fermer' : 'Close'}</Text>
+          </Pressable>
         </View>
       )}
 
@@ -892,30 +891,31 @@ const styles = StyleSheet.create({
     fontWeight: '600' as const,
     color: Colors.dark.text,
   },
-  keyboardAccessory: {
-    backgroundColor: 'rgba(209, 209, 214, 0.98)',
-    borderTopWidth: 0.5,
-    borderTopColor: 'rgba(0, 0, 0, 0.3)',
+  keyboardToolbar: {
+    backgroundColor: Colors.dark.card,
+    borderTopWidth: 1,
+    borderTopColor: Colors.dark.border,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
   },
-  accessoryContainer: {
+  toolbarButton: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
     alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 8,
-    minHeight: 44,
+    justifyContent: 'center',
+    backgroundColor: Colors.dark.primary,
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    gap: 8,
   },
-  accessoryButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+  toolbarButtonPressed: {
+    backgroundColor: Colors.dark.primaryDark,
+    opacity: 0.9,
   },
-  accessoryButtonPressed: {
-    opacity: 0.4,
-  },
-  accessoryButtonText: {
-    fontSize: 17,
+  toolbarButtonText: {
+    fontSize: 16,
     fontWeight: '600' as const,
-    color: '#007AFF',
+    color: Colors.dark.text,
   },
   verificationOverlay: {
     flex: 1,
