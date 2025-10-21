@@ -3,6 +3,7 @@ import { trpcServer } from "@hono/trpc-server";
 import { cors } from "hono/cors";
 import { appRouter } from "./trpc/app-router";
 import { createContext } from "./trpc/create-context";
+import { startGDPRCleanupScheduler } from "./jobs/gdpr-cleanup";
 
 const app = new Hono();
 
@@ -20,5 +21,7 @@ app.use(
 app.get("/", (c) => {
   return c.json({ status: "ok", message: "API is running" });
 });
+
+startGDPRCleanupScheduler();
 
 export default app;
