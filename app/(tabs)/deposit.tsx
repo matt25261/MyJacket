@@ -447,20 +447,7 @@ export default function DepositScreen() {
         </View>
       </ScrollView>
 
-      {isKeyboardVisible && (
-        <View style={styles.keyboardToolbar}>
-          <Pressable
-            style={({ pressed }) => [
-              styles.toolbarButton,
-              pressed && styles.toolbarButtonPressed
-            ]}
-            onPress={() => Keyboard.dismiss()}
-          >
-            <X size={20} color={Colors.dark.text} />
-            <Text style={styles.toolbarButtonText}>{language === 'fr' ? 'Fermer' : 'Close'}</Text>
-          </Pressable>
-        </View>
-      )}
+
 
       <Modal
         visible={showCountryPicker}
@@ -891,32 +878,7 @@ const styles = StyleSheet.create({
     fontWeight: '600' as const,
     color: Colors.dark.text,
   },
-  keyboardToolbar: {
-    backgroundColor: Colors.dark.card,
-    borderTopWidth: 1,
-    borderTopColor: Colors.dark.border,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  toolbarButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: Colors.dark.primary,
-    borderRadius: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    gap: 8,
-  },
-  toolbarButtonPressed: {
-    backgroundColor: Colors.dark.primaryDark,
-    opacity: 0.9,
-  },
-  toolbarButtonText: {
-    fontSize: 16,
-    fontWeight: '600' as const,
-    color: Colors.dark.text,
-  },
+
   verificationOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.85)',
