@@ -1,5 +1,5 @@
 import { Tabs, useRouter } from "expo-router";
-import { LayoutDashboard, Package, ScanLine, Search, BarChart3, Shield, Users } from "lucide-react-native";
+import { LayoutDashboard, Package, ScanLine, Search, BarChart3, Users } from "lucide-react-native";
 import React, { useEffect } from "react";
 import { View, ActivityIndicator, StyleSheet } from "react-native";
 
@@ -99,8 +99,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="privacy"
         options={{
-          title: t.settings.privacy,
-          tabBarIcon: ({ color }) => <Shield size={24} color={color} />,
+          href: null,
         }}
       />
     </Tabs>

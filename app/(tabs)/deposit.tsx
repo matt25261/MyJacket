@@ -135,7 +135,8 @@ export default function DepositScreen() {
     };
 
     const fullPhoneNumber = `${jacket.countryCode}${jacket.phoneNumber}`;
-    const message = `🎟️ MyJacket - Votre QR code de récupération\n\nCintre n°${jacket.hangerNumber}\n\nVoici votre QR code :\n${jacket.deepLink}\n\nPrésentez ce code au vestiaire pour récupérer votre veste.`;
+    const privacyUrl = 'https://rork.app/p/myqt45gzmdli8zqxtr559/privacy';
+    const message = `🎟️ MyJacket - Votre QR code de récupération\n\nCintre n°${jacket.hangerNumber}\n\nVoici votre QR code :\n${jacket.deepLink}\n\nPrésentez ce code au vestiaire pour récupérer votre veste.\n\n📋 Protection des données : ${privacyUrl}`;
     
     try {
       if (Platform.OS === 'web') {
@@ -227,7 +228,8 @@ export default function DepositScreen() {
     const jacket = jackets.find(j => j.qrCode === generatedQR);
     if (!jacket) return;
 
-    const message = `🎟️ MyJacket - Votre QR code de récupération\n\nCintre n°${jacket.hangerNumber}\n\nVoici votre QR code :\n${jacket.deepLink}\n\nPrésentez ce code au vestiaire pour récupérer votre veste.`;
+    const privacyUrl = 'https://rork.app/p/myqt45gzmdli8zqxtr559/privacy';
+    const message = `🎟️ MyJacket - Votre QR code de récupération\n\nCintre n°${jacket.hangerNumber}\n\nVoici votre QR code :\n${jacket.deepLink}\n\nPrésentez ce code au vestiaire pour récupérer votre veste.\n\n📋 Protection des données : ${privacyUrl}`;
 
     try {
       await Share.share({
@@ -247,7 +249,8 @@ export default function DepositScreen() {
     if (!jacket) return;
 
     const fullPhoneNumber = `${jacket.countryCode}${jacket.phoneNumber}`;
-    const message = `🎟️ MyJacket - Votre QR code de récupération\n\nCintre n°${jacket.hangerNumber}\n\nVoici votre QR code :\n${jacket.deepLink}\n\nPrésentez ce code au vestiaire pour récupérer votre veste.`;
+    const privacyUrl = 'https://rork.app/p/myqt45gzmdli8zqxtr559/privacy';
+    const message = `🎟️ MyJacket - Votre QR code de récupération\n\nCintre n°${jacket.hangerNumber}\n\nVoici votre QR code :\n${jacket.deepLink}\n\nPrésentez ce code au vestiaire pour récupérer votre veste.\n\n📋 Protection des données : ${privacyUrl}`;
     
     try {
       if (Platform.OS === 'web') {
