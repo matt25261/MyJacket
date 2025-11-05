@@ -9,11 +9,15 @@ const getStorageKey = (userId: string) => `@myjacket_data_${userId}`;
 export const [JacketProvider, useJackets] = createContextHook(() => {
   const { user } = useAuth();
   const [jackets, setJackets] = useState<Jacket[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const loadJackets = useCallback(async () => {
-    if (!user) return;
+    if (!user) {
+      setIsLoading(false);
+      return;
+    }
     
+    setIsLoading(true);
     try {
       const storageKey = getStorageKey(user.username);
       const stored = await AsyncStorage.getItem(storageKey);

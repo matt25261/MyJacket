@@ -8,13 +8,14 @@ export type Language = 'fr' | 'en';
 
 export const [LanguageProvider, useLanguage] = createContextHook(() => {
   const [language, setLanguage] = useState<Language>('fr');
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     loadLanguage();
   }, []);
 
   const loadLanguage = async () => {
+    setIsLoading(true);
     try {
       const stored = await AsyncStorage.getItem(LANGUAGE_STORAGE_KEY);
       if (stored && (stored === 'fr' || stored === 'en')) {

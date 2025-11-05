@@ -9,19 +9,19 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslations } from "@/constants/translations";
 
 export default function TabLayout() {
-  const { isAuthenticated, isLoading, user } = useAuth();
+  const { isAuthenticated, hasCheckedAuth, user } = useAuth();
   const { language } = useLanguage();
   const t = useTranslations(language);
   const router = useRouter();
   const isManager = user?.role === 'manager';
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
+    if (hasCheckedAuth && !isAuthenticated) {
       router.replace('/login');
     }
-  }, [isLoading, isAuthenticated, router]);
+  }, [hasCheckedAuth, isAuthenticated, router]);
 
-  if (isLoading) {
+  if (!hasCheckedAuth) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={Colors.dark.primary} />

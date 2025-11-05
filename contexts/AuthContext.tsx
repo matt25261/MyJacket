@@ -20,13 +20,15 @@ const VALID_USERS = [
 
 export const [AuthProvider, useAuth] = createContextHook(() => {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
 
   useEffect(() => {
     loadAuth();
   }, []);
 
   const loadAuth = async () => {
+    setIsLoading(true);
     try {
       const stored = await AsyncStorage.getItem(AUTH_STORAGE_KEY);
       if (stored) {
@@ -36,6 +38,7 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
       console.error('Error loading auth:', error);
     } finally {
       setIsLoading(false);
+      setHasCheckedAuth(true);
     }
   };
 
@@ -77,7 +80,8 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
     user,
     isLoading,
     isAuthenticated: !!user,
+    hasCheckedAuth,
     login,
     logout,
-  }), [user, isLoading, login, logout]);
+  }), [user, isLoading, hasCheckedAuth, login, logout]);
 });

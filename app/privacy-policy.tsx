@@ -1,10 +1,12 @@
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { Stack } from 'expo-router';
 import { Shield, Lock, Clock, UserX } from 'lucide-react-native';
 import Colors from '@/constants/colors';
 
 export default function PublicPrivacyScreen() {
   return (
     <View style={styles.container}>
+      <Stack.Screen options={{ title: "Protection des Données" }} />
       <ScrollView 
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}

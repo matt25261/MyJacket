@@ -15,12 +15,12 @@ SplashScreen.preventAutoHideAsync();
 const queryClient = new QueryClient();
 
 function RootLayoutNav() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, hasCheckedAuth } = useAuth();
   const segments = useSegments();
   const router = useRouter();
 
   useEffect(() => {
-    if (isLoading) return;
+    if (!hasCheckedAuth) return;
 
     const inAuthGroup = segments[0] === 'login';
     const isPublicRoute = segments[0] === 'privacy-policy' || segments[0] === 'pickup';
@@ -30,9 +30,9 @@ function RootLayoutNav() {
     } else if (isAuthenticated && inAuthGroup) {
       router.replace('/(tabs)');
     }
-  }, [isAuthenticated, segments, isLoading, router]);
+  }, [isAuthenticated, segments, hasCheckedAuth, router]);
 
-  if (isLoading) {
+  if (!hasCheckedAuth) {
     return null;
   }
 
