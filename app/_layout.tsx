@@ -23,8 +23,9 @@ function RootLayoutNav() {
     if (isLoading) return;
 
     const inAuthGroup = segments[0] === 'login';
+    const isPublicRoute = segments[0] === 'public-privacy' || segments[0] === 'pickup';
 
-    if (!isAuthenticated && !inAuthGroup) {
+    if (!isAuthenticated && !inAuthGroup && !isPublicRoute) {
       router.replace('/login');
     } else if (isAuthenticated && inAuthGroup) {
       router.replace('/(tabs)');
@@ -43,6 +44,7 @@ function RootLayoutNav() {
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="pickup/[id]" options={{ title: "Récupération" }} />
       <Stack.Screen name="pickup/qr/[id]" options={{ title: "Mon QR Code", headerShown: false }} />
+      <Stack.Screen name="public-privacy" options={{ title: "Protection des Données", headerShown: false }} />
     </Stack>
   );
 }
