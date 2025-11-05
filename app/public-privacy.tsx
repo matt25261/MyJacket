@@ -1,15 +1,10 @@
-import { View, Text, StyleSheet, ScrollView, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { Shield, Lock, Clock, UserX } from 'lucide-react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Stack } from 'expo-router';
 import Colors from '@/constants/colors';
 
 export default function PublicPrivacyScreen() {
-  const insets = useSafeAreaInsets();
-
   return (
-    <View style={[styles.container, Platform.OS === 'web' && { paddingTop: insets.top }]}>
-      <Stack.Screen options={{ title: 'Protection des Données' }} />
+    <View style={styles.container}>
       <ScrollView 
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}

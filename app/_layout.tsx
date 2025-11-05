@@ -44,7 +44,7 @@ function RootLayoutNav() {
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="pickup/[id]" options={{ title: "Récupération" }} />
       <Stack.Screen name="pickup/qr/[id]" options={{ title: "Mon QR Code", headerShown: false }} />
-      <Stack.Screen name="public-privacy" options={{ title: "Protection des Données", headerShown: false }} />
+      <Stack.Screen name="public-privacy" options={{ title: "Protection des Données" }} />
     </Stack>
   );
 }
