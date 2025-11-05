@@ -8,12 +8,14 @@ interface User {
   id: string;
   username: string;
   email: string;
+  role: 'user' | 'manager';
 }
 
 const VALID_USERS = [
-  { username: 'admin', password: 'admin123', email: 'admin@myjacket.com' },
-  { username: 'vestiaire', password: 'vestiaire123', email: 'vestiaire@myjacket.com' },
-  { username: 'seb', password: 'seb123', email: 'seb@myjacket.com' },
+  { username: 'admin', password: 'admin123', email: 'admin@myjacket.com', role: 'user' as const },
+  { username: 'vestiaire', password: 'vestiaire123', email: 'vestiaire@myjacket.com', role: 'user' as const },
+  { username: 'seb', password: 'seb123', email: 'seb@myjacket.com', role: 'user' as const },
+  { username: 'manager', password: 'manager123', email: 'manager@myjacket.com', role: 'manager' as const },
 ];
 
 export const [AuthProvider, useAuth] = createContextHook(() => {
@@ -47,6 +49,7 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
         id: Date.now().toString(),
         username: validUser.username,
         email: validUser.email,
+        role: validUser.role,
       };
       
       try {

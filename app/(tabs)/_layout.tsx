@@ -9,10 +9,11 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslations } from "@/constants/translations";
 
 export default function TabLayout() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
   const { language } = useLanguage();
   const t = useTranslations(language);
   const router = useRouter();
+  const isManager = user?.role === 'manager';
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -92,6 +93,7 @@ export default function TabLayout() {
         options={{
           title: t.tabs.manager,
           tabBarIcon: ({ color }) => <Users size={24} color={color} />,
+          href: isManager ? '/manager' : null,
         }}
       />
       <Tabs.Screen
