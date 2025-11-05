@@ -135,7 +135,8 @@ export default function DepositScreen() {
     };
 
     const fullPhoneNumber = `${jacket.countryCode}${jacket.phoneNumber}`;
-    const message = `🎟️ MyJacket - Votre QR code de récupération\n\nCintre n°${jacket.hangerNumber}\n\nVoici votre QR code :\n${jacket.deepLink}\n\nPrésentez ce code au vestiaire pour récupérer votre veste.\n\n📋 Protection des données\nVoir la page \"Confidentialité\" dans l'app`;
+    const privacyUrl = `https://myqt45gzmdli8zqxtr559.rork.app/public-privacy`;
+    const message = `🎟️ MyJacket - Votre QR code de récupération\n\nCintre n°${jacket.hangerNumber}\n\nVoici votre QR code :\n${jacket.deepLink}\n\nPrésentez ce code au vestiaire pour récupérer votre veste.\n\n📋 Protection des données\n${privacyUrl}`;
     
     try {
       if (Platform.OS === 'web') {
@@ -227,7 +228,8 @@ export default function DepositScreen() {
     const jacket = jackets.find(j => j.qrCode === generatedQR);
     if (!jacket) return;
 
-    const message = `🎟️ MyJacket - Votre QR code de récupération\n\nCintre n°${jacket.hangerNumber}\n\nVoici votre QR code :\n${jacket.deepLink}\n\nPrésentez ce code au vestiaire pour récupérer votre veste.\n\n📋 Protection des données\nVoir la page \"Confidentialité\" dans l'app`;
+    const privacyUrl = `https://myqt45gzmdli8zqxtr559.rork.app/public-privacy`;
+    const message = `🎟️ MyJacket - Votre QR code de récupération\n\nCintre n°${jacket.hangerNumber}\n\nVoici votre QR code :\n${jacket.deepLink}\n\nPrésentez ce code au vestiaire pour récupérer votre veste.\n\n📋 Protection des données\n${privacyUrl}`;
 
     try {
       await Share.share({
@@ -247,7 +249,8 @@ export default function DepositScreen() {
     if (!jacket) return;
 
     const fullPhoneNumber = `${jacket.countryCode}${jacket.phoneNumber}`;
-    const message = `🎟️ MyJacket - Votre QR code de récupération\n\nCintre n°${jacket.hangerNumber}\n\nVoici votre QR code :\n${jacket.deepLink}\n\nPrésentez ce code au vestiaire pour récupérer votre veste.\n\n📋 Protection des données\nVoir la page \"Confidentialité\" dans l'app`;
+    const privacyUrl = `https://myqt45gzmdli8zqxtr559.rork.app/public-privacy`;
+    const message = `🎟️ MyJacket - Votre QR code de récupération\n\nCintre n°${jacket.hangerNumber}\n\nVoici votre QR code :\n${jacket.deepLink}\n\nPrésentez ce code au vestiaire pour récupérer votre veste.\n\n📋 Protection des données\n${privacyUrl}`;
     
     try {
       if (Platform.OS === 'web') {
@@ -1082,4 +1085,3 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
 });
-
