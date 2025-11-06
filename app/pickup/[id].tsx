@@ -37,16 +37,7 @@ export default function PickupScreen() {
           text: t.common.confirm,
           onPress: () => {
             retrieveJacket(jacket.id);
-            Alert.alert(
-              language === 'fr' ? 'Récupération confirmée' : 'Pickup confirmed',
-              language === 'fr' ? 'La veste a été marquée comme récupérée.' : 'The jacket has been marked as retrieved.',
-              [
-                {
-                  text: 'OK',
-                  onPress: () => router.push('/')
-                }
-              ]
-            );
+            router.push('/');
           }
         }
       ]
