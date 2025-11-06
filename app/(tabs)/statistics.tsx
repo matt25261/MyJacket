@@ -1187,18 +1187,7 @@ export default function StatisticsScreen() {
         )}
         {viewMode === 'month' && (
           <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>{language === 'fr' ? 'Vue globale par mois' : 'Monthly overview'}</Text>
-              <TouchableOpacity
-                style={styles.selectButton}
-                onPress={() => setShowMonthPicker(true)}
-              >
-                <Text style={styles.selectButtonText}>
-                  {language === 'fr' ? 'Sélectionner' : 'Select'}
-                </Text>
-                <ChevronDown size={16} color={Colors.dark.text} />
-              </TouchableOpacity>
-            </View>
+            <Text style={styles.sectionTitle}>{language === 'fr' ? 'Vue globale par mois' : 'Monthly overview'}</Text>
             {monthlyStats.length === 0 ? (
               <View style={styles.emptyState}>
                 <Text style={styles.emptyText}>
@@ -1266,18 +1255,7 @@ export default function StatisticsScreen() {
         )}
         {viewMode === 'year' && (
           <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>{language === 'fr' ? 'Vue globale par année' : 'Yearly overview'}</Text>
-              <TouchableOpacity
-                style={styles.selectButton}
-                onPress={() => setShowYearPicker(true)}
-              >
-                <Text style={styles.selectButtonText}>
-                  {language === 'fr' ? 'Sélectionner' : 'Select'}
-                </Text>
-                <ChevronDown size={16} color={Colors.dark.text} />
-              </TouchableOpacity>
-            </View>
+            <Text style={styles.sectionTitle}>{language === 'fr' ? 'Vue globale par année' : 'Yearly overview'}</Text>
             {yearlyStats.length === 0 ? (
               <View style={styles.emptyState}>
                 <Text style={styles.emptyText}>
@@ -1702,26 +1680,7 @@ const styles = StyleSheet.create({
     fontWeight: '600' as const,
     color: Colors.dark.text,
   },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  selectButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: Colors.dark.primary,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-  },
-  selectButtonText: {
-    fontSize: 14,
-    fontWeight: '600' as const,
-    color: Colors.dark.text,
-  },
+
   pickerScroll: {
     maxHeight: 400,
   },
