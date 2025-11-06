@@ -557,7 +557,7 @@ export default function StatisticsScreen() {
       </Modal>
       
       <ScrollView style={styles.content}>
-        {viewMode === 'day' ? (
+        {viewMode === 'day' && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>{language === 'fr' ? 'Vue globale par jour' : 'Daily overview'}</Text>
           {dailyStats.length === 0 ? (
@@ -615,7 +615,8 @@ export default function StatisticsScreen() {
             ))
           )}
           </View>
-        ) : (
+        )}
+        {viewMode === 'week' && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>{language === 'fr' ? 'Vue globale par semaine' : 'Weekly overview'}</Text>
             {weeklyStats.length === 0 ? (
@@ -678,6 +679,20 @@ export default function StatisticsScreen() {
                 </TouchableOpacity>
               ))
             )}
+          </View>
+        )}
+        {(viewMode === 'month' || viewMode === 'year') && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>
+              {language === 'fr' ? 'Bientôt disponible' : 'Coming soon'}
+            </Text>
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyText}>
+                {language === 'fr' 
+                  ? `La vue par ${viewMode === 'month' ? 'mois' : 'année'} sera bientôt disponible` 
+                  : `${viewMode === 'month' ? 'Monthly' : 'Yearly'} view coming soon`}
+              </Text>
+            </View>
           </View>
         )}
       </ScrollView>
@@ -893,22 +908,26 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: Colors.dark.border,
     paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingVertical: 16,
   },
   pickerButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: Colors.dark.background,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: Colors.dark.border,
+    backgroundColor: Colors.dark.primary,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    borderWidth: 0,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   pickerButtonText: {
-    fontSize: 16,
-    fontWeight: '600' as const,
+    fontSize: 18,
+    fontWeight: '700' as const,
     color: Colors.dark.text,
   },
   modalOverlay: {
