@@ -39,6 +39,25 @@ interface WeeklyStats {
 
 type ViewMode = 'day' | 'week' | 'month' | 'year';
 
+interface MonthlyStats {
+  month: string;
+  year: number;
+  arrivals: number;
+  departures: number;
+  peakDay: string;
+  peakCount: number;
+  dailyBreakdown: DailyStats[];
+}
+
+interface YearlyStats {
+  year: number;
+  arrivals: number;
+  departures: number;
+  peakMonth: string;
+  peakCount: number;
+  monthlyBreakdown: { month: number; arrivals: number; departures: number }[];
+}
+
 interface SelectedWeek {
   weekStart: string;
   weekEnd: string;
@@ -50,8 +69,12 @@ export default function StatisticsScreen() {
   const t = useTranslations(language);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedWeek, setSelectedWeek] = useState<SelectedWeek | null>(null);
+  const [selectedMonth, setSelectedMonth] = useState<{ month: number; year: number } | null>(null);
+  const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('day');
   const [showPicker, setShowPicker] = useState(false);
+  const [showMonthPicker, setShowMonthPicker] = useState(false);
+  const [showYearPicker, setShowYearPicker] = useState(false);
 
   const getHourlyStats = useCallback((date: string): HourlyStats[] => {
     const hourlyMap = new Map<number, HourlyStats>();
@@ -228,6 +251,156 @@ export default function StatisticsScreen() {
     );
   }, [jackets, dailyStats]);
 
+  const monthlyStats = useMemo(() => {
+    const statsMap = new Map<string, MonthlyStats>();
+
+    jackets.forEach((jacket) => {
+      const depositDate = new Date(jacket.depositTime);
+      const monthKey = `${depositDate.getFullYear()}-${(depositDate.getMonth() + 1).toString().padStart(2, '0')}`;
+
+      if (!statsMap.has(monthKey)) {
+        statsMap.set(monthKey, {
+          month: monthKey,
+          year: depositDate.getFullYear(),
+          arrivals: 0,
+          departures: 0,
+          peakDay: '',
+          peakCount: 0,
+          dailyBreakdown: [],
+        });
+      }
+
+      const stats = statsMap.get(monthKey)!;
+      stats.arrivals += 1;
+
+      if (jacket.retrievalTime) {
+        const retrievalDate = new Date(jacket.retrievalTime);
+        const retrievalMonthKey = `${retrievalDate.getFullYear()}-${(retrievalDate.getMonth() + 1).toString().padStart(2, '0')}`;
+
+        if (retrievalMonthKey === monthKey) {
+          stats.departures += 1;
+        } else if (statsMap.has(retrievalMonthKey)) {
+          statsMap.get(retrievalMonthKey)!.departures += 1;
+        } else {
+          statsMap.set(retrievalMonthKey, {
+            month: retrievalMonthKey,
+            year: retrievalDate.getFullYear(),
+            arrivals: 0,
+            departures: 1,
+            peakDay: '',
+            peakCount: 0,
+            dailyBreakdown: [],
+          });
+        }
+      }
+    });
+
+    statsMap.forEach((monthStats) => {
+      const dailyStatsInMonth = dailyStats.filter((ds) => {
+        const date = new Date(ds.date);
+        const dateMonthKey = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+        return dateMonthKey === monthStats.month;
+      });
+
+      monthStats.dailyBreakdown = dailyStatsInMonth.sort(
+        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+      );
+
+      if (dailyStatsInMonth.length > 0) {
+        const peak = dailyStatsInMonth.reduce((max, curr) => {
+          const total = curr.arrivals + curr.departures;
+          return total > max.count ? { day: curr.date, count: total } : max;
+        }, { day: '', count: 0 });
+
+        monthStats.peakDay = peak.day;
+        monthStats.peakCount = peak.count;
+      }
+    });
+
+    return Array.from(statsMap.values()).sort(
+      (a, b) => b.month.localeCompare(a.month)
+    );
+  }, [jackets, dailyStats]);
+
+  const yearlyStats = useMemo(() => {
+    const statsMap = new Map<number, YearlyStats>();
+
+    jackets.forEach((jacket) => {
+      const depositDate = new Date(jacket.depositTime);
+      const year = depositDate.getFullYear();
+
+      if (!statsMap.has(year)) {
+        statsMap.set(year, {
+          year,
+          arrivals: 0,
+          departures: 0,
+          peakMonth: '',
+          peakCount: 0,
+          monthlyBreakdown: [],
+        });
+      }
+
+      const stats = statsMap.get(year)!;
+      stats.arrivals += 1;
+
+      if (jacket.retrievalTime) {
+        const retrievalDate = new Date(jacket.retrievalTime);
+        const retrievalYear = retrievalDate.getFullYear();
+
+        if (retrievalYear === year) {
+          stats.departures += 1;
+        } else if (statsMap.has(retrievalYear)) {
+          statsMap.get(retrievalYear)!.departures += 1;
+        } else {
+          statsMap.set(retrievalYear, {
+            year: retrievalYear,
+            arrivals: 0,
+            departures: 1,
+            peakMonth: '',
+            peakCount: 0,
+            monthlyBreakdown: [],
+          });
+        }
+      }
+    });
+
+    statsMap.forEach((yearStats) => {
+      const monthlyMap = new Map<number, { month: number; arrivals: number; departures: number }>();
+
+      for (let month = 0; month < 12; month++) {
+        monthlyMap.set(month, { month, arrivals: 0, departures: 0 });
+      }
+
+      jackets.forEach((jacket) => {
+        const depositDate = new Date(jacket.depositTime);
+        if (depositDate.getFullYear() === yearStats.year) {
+          const month = depositDate.getMonth();
+          monthlyMap.get(month)!.arrivals += 1;
+        }
+
+        if (jacket.retrievalTime) {
+          const retrievalDate = new Date(jacket.retrievalTime);
+          if (retrievalDate.getFullYear() === yearStats.year) {
+            const month = retrievalDate.getMonth();
+            monthlyMap.get(month)!.departures += 1;
+          }
+        }
+      });
+
+      yearStats.monthlyBreakdown = Array.from(monthlyMap.values());
+
+      const peak = yearStats.monthlyBreakdown.reduce((max, curr) => {
+        const total = curr.arrivals + curr.departures;
+        return total > max.count ? { month: curr.month, count: total } : max;
+      }, { month: 0, count: 0 });
+
+      yearStats.peakMonth = `${yearStats.year}-${(peak.month + 1).toString().padStart(2, '0')}`;
+      yearStats.peakCount = peak.count;
+    });
+
+    return Array.from(statsMap.values()).sort((a, b) => b.year - a.year);
+  }, [jackets]);
+
   const selectedDateStats = useMemo(() => {
     if (!selectedDate) return null;
     return getHourlyStats(selectedDate);
@@ -251,6 +424,19 @@ export default function StatisticsScreen() {
     return `${start.toLocaleDateString(locale, { day: 'numeric', month: 'short' })} - ${end.toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' })}`;
   };
 
+  const formatMonth = (monthKey: string) => {
+    const [year, month] = monthKey.split('-');
+    const date = new Date(parseInt(year), parseInt(month) - 1, 1);
+    const locale = language === 'fr' ? 'fr-FR' : 'en-US';
+    return date.toLocaleDateString(locale, { month: 'long', year: 'numeric' });
+  };
+
+  const getMonthName = (monthIndex: number) => {
+    const date = new Date(2000, monthIndex, 1);
+    const locale = language === 'fr' ? 'fr-FR' : 'en-US';
+    return date.toLocaleDateString(locale, { month: 'long' });
+  };
+
   const maxHourlyValue = useMemo(() => {
     if (!selectedDateStats) return 1;
     return Math.max(
@@ -258,6 +444,258 @@ export default function StatisticsScreen() {
       1
     );
   }, [selectedDateStats]);
+
+  const availableMonths = useMemo(() => {
+    return monthlyStats.map(m => ({
+      month: parseInt(m.month.split('-')[1]) - 1,
+      year: m.year,
+      label: formatMonth(m.month)
+    }));
+  }, [monthlyStats, language]);
+
+  const availableYears = useMemo(() => {
+    return yearlyStats.map(y => y.year);
+  }, [yearlyStats]);
+
+  if (selectedMonth) {
+    const monthData = monthlyStats.find(
+      (m) => {
+        const [year, month] = m.month.split('-');
+        return parseInt(month) - 1 === selectedMonth.month && parseInt(year) === selectedMonth.year;
+      }
+    );
+
+    if (!monthData) {
+      return null;
+    }
+
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity
+            onPress={() => setSelectedMonth(null)}
+            style={styles.backButton}
+          >
+            <ArrowLeft size={24} color={Colors.dark.text} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>{language === 'fr' ? 'Mois' : 'Month'}</Text>
+          <View style={{ width: 40 }} />
+        </View>
+
+        <ScrollView style={styles.content}>
+          <View style={styles.dateCard}>
+            <Text style={styles.dateTitle}>{formatMonth(monthData.month)}</Text>
+            <View style={styles.statsRow}>
+              <View style={styles.statItem}>
+                <Text style={[styles.statValue, { color: Colors.dark.success }]}>
+                  {monthData.arrivals}
+                </Text>
+                <Text style={styles.statLabel}>{t.statistics.arrivals}</Text>
+              </View>
+              <View style={styles.statItem}>
+                <Text style={[styles.statValue, { color: Colors.dark.error }]}>
+                  {monthData.departures}
+                </Text>
+                <Text style={styles.statLabel}>{t.statistics.departures}</Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.chartContainer}>
+            <Text style={styles.chartTitle}>{t.statistics.daily}</Text>
+            {monthData.dailyBreakdown.length === 0 ? (
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyText}>
+                  {t.statistics.noData}
+                </Text>
+              </View>
+            ) : (
+              monthData.dailyBreakdown.map((dayStats) => {
+                const total = dayStats.arrivals + dayStats.departures;
+                const maxTotal = Math.max(
+                  ...monthData.dailyBreakdown.map((d) => d.arrivals + d.departures),
+                  1
+                );
+
+                return (
+                  <TouchableOpacity
+                    key={dayStats.date}
+                    style={styles.weekDayCard}
+                    onPress={() => {
+                      setSelectedMonth(null);
+                      setSelectedDate(dayStats.date);
+                    }}
+                  >
+                    <View style={styles.weekDayHeader}>
+                      <Text style={styles.weekDayName}>
+                        {new Date(dayStats.date).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US', {
+                          weekday: 'long',
+                          day: 'numeric',
+                          month: 'short',
+                        })}
+                      </Text>
+                      {monthData.peakDay === dayStats.date && (
+                        <View style={styles.peakBadge}>
+                          <Text style={styles.peakBadgeText}>{t.statistics.peakDay}</Text>
+                        </View>
+                      )}
+                    </View>
+
+                    <View style={styles.weekDayStats}>
+                      <View style={styles.weekDayStatRow}>
+                        <View style={styles.weekDayStatLeft}>
+                          <View
+                            style={[
+                              styles.statIndicator,
+                              { backgroundColor: Colors.dark.success },
+                            ]}
+                          />
+                          <Text style={styles.weekDayStatLabel}>{t.statistics.arrivals}</Text>
+                        </View>
+                        <Text style={styles.weekDayStatValue}>{dayStats.arrivals}</Text>
+                      </View>
+                      <View style={styles.weekDayStatRow}>
+                        <View style={styles.weekDayStatLeft}>
+                          <View
+                            style={[
+                              styles.statIndicator,
+                              { backgroundColor: Colors.dark.error },
+                            ]}
+                          />
+                          <Text style={styles.weekDayStatLabel}>{t.statistics.departures}</Text>
+                        </View>
+                        <Text style={styles.weekDayStatValue}>{dayStats.departures}</Text>
+                      </View>
+                    </View>
+
+                    <View style={styles.activityBar}>
+                      <View
+                        style={[
+                          styles.activityFill,
+                          {
+                            width: `${(total / maxTotal) * 100}%`,
+                          },
+                        ]}
+                      />
+                    </View>
+                  </TouchableOpacity>
+                );
+              })
+            )}
+          </View>
+        </ScrollView>
+      </View>
+    );
+  }
+
+  if (selectedYear !== null) {
+    const yearData = yearlyStats.find((y) => y.year === selectedYear);
+
+    if (!yearData) {
+      return null;
+    }
+
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity
+            onPress={() => setSelectedYear(null)}
+            style={styles.backButton}
+          >
+            <ArrowLeft size={24} color={Colors.dark.text} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>{language === 'fr' ? 'Année' : 'Year'}</Text>
+          <View style={{ width: 40 }} />
+        </View>
+
+        <ScrollView style={styles.content}>
+          <View style={styles.dateCard}>
+            <Text style={styles.dateTitle}>{yearData.year}</Text>
+            <View style={styles.statsRow}>
+              <View style={styles.statItem}>
+                <Text style={[styles.statValue, { color: Colors.dark.success }]}>
+                  {yearData.arrivals}
+                </Text>
+                <Text style={styles.statLabel}>{t.statistics.arrivals}</Text>
+              </View>
+              <View style={styles.statItem}>
+                <Text style={[styles.statValue, { color: Colors.dark.error }]}>
+                  {yearData.departures}
+                </Text>
+                <Text style={styles.statLabel}>{t.statistics.departures}</Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.chartContainer}>
+            <Text style={styles.chartTitle}>{language === 'fr' ? 'Activité par mois' : 'Activity by month'}</Text>
+            {yearData.monthlyBreakdown.map((monthData) => {
+              const total = monthData.arrivals + monthData.departures;
+              const maxTotal = Math.max(
+                ...yearData.monthlyBreakdown.map((m) => m.arrivals + m.departures),
+                1
+              );
+
+              return (
+                <TouchableOpacity
+                  key={monthData.month}
+                  style={styles.weekDayCard}
+                  onPress={() => {
+                    setSelectedYear(null);
+                    setSelectedMonth({ month: monthData.month, year: yearData.year });
+                  }}
+                >
+                  <View style={styles.weekDayHeader}>
+                    <Text style={styles.weekDayName}>
+                      {getMonthName(monthData.month)}
+                    </Text>
+                  </View>
+
+                  <View style={styles.weekDayStats}>
+                    <View style={styles.weekDayStatRow}>
+                      <View style={styles.weekDayStatLeft}>
+                        <View
+                          style={[
+                            styles.statIndicator,
+                            { backgroundColor: Colors.dark.success },
+                          ]}
+                        />
+                        <Text style={styles.weekDayStatLabel}>{t.statistics.arrivals}</Text>
+                      </View>
+                      <Text style={styles.weekDayStatValue}>{monthData.arrivals}</Text>
+                    </View>
+                    <View style={styles.weekDayStatRow}>
+                      <View style={styles.weekDayStatLeft}>
+                        <View
+                          style={[
+                            styles.statIndicator,
+                            { backgroundColor: Colors.dark.error },
+                          ]}
+                        />
+                        <Text style={styles.weekDayStatLabel}>{t.statistics.departures}</Text>
+                      </View>
+                      <Text style={styles.weekDayStatValue}>{monthData.departures}</Text>
+                    </View>
+                  </View>
+
+                  <View style={styles.activityBar}>
+                    <View
+                      style={[
+                        styles.activityFill,
+                        {
+                          width: `${(total / maxTotal) * 100}%`,
+                        },
+                      ]}
+                    />
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </ScrollView>
+      </View>
+    );
+  }
 
   if (selectedWeek) {
     const weekData = weeklyStats.find(
@@ -555,6 +993,72 @@ export default function StatisticsScreen() {
           </View>
         </TouchableOpacity>
       </Modal>
+
+      <Modal
+        visible={showMonthPicker}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowMonthPicker(false)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowMonthPicker(false)}
+        >
+          <View style={styles.pickerModal}>
+            <ScrollView style={styles.pickerScroll}>
+              {availableMonths.map((m, idx) => (
+                <TouchableOpacity
+                  key={`${m.year}-${m.month}`}
+                  style={[
+                    styles.pickerOption,
+                    idx === availableMonths.length - 1 && { borderBottomWidth: 0 }
+                  ]}
+                  onPress={() => {
+                    setSelectedMonth({ month: m.month, year: m.year });
+                    setShowMonthPicker(false);
+                  }}
+                >
+                  <Text style={styles.pickerOptionText}>{m.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      <Modal
+        visible={showYearPicker}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowYearPicker(false)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowYearPicker(false)}
+        >
+          <View style={styles.pickerModal}>
+            <ScrollView style={styles.pickerScroll}>
+              {availableYears.map((year, idx) => (
+                <TouchableOpacity
+                  key={year}
+                  style={[
+                    styles.pickerOption,
+                    idx === availableYears.length - 1 && { borderBottomWidth: 0 }
+                  ]}
+                  onPress={() => {
+                    setSelectedYear(year);
+                    setShowYearPicker(false);
+                  }}
+                >
+                  <Text style={styles.pickerOptionText}>{year}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </TouchableOpacity>
+      </Modal>
       
       <ScrollView style={styles.content}>
         {viewMode === 'day' && (
@@ -681,18 +1185,159 @@ export default function StatisticsScreen() {
             )}
           </View>
         )}
-        {(viewMode === 'month' || viewMode === 'year') && (
+        {viewMode === 'month' && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>
-              {language === 'fr' ? 'Bientôt disponible' : 'Coming soon'}
-            </Text>
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyText}>
-                {language === 'fr' 
-                  ? `La vue par ${viewMode === 'month' ? 'mois' : 'année'} sera bientôt disponible` 
-                  : `${viewMode === 'month' ? 'Monthly' : 'Yearly'} view coming soon`}
-              </Text>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>{language === 'fr' ? 'Vue globale par mois' : 'Monthly overview'}</Text>
+              <TouchableOpacity
+                style={styles.selectButton}
+                onPress={() => setShowMonthPicker(true)}
+              >
+                <Text style={styles.selectButtonText}>
+                  {language === 'fr' ? 'Sélectionner' : 'Select'}
+                </Text>
+                <ChevronDown size={16} color={Colors.dark.text} />
+              </TouchableOpacity>
             </View>
+            {monthlyStats.length === 0 ? (
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyText}>
+                  {t.statistics.noData}
+                </Text>
+              </View>
+            ) : (
+              monthlyStats.map((stats) => (
+                <TouchableOpacity
+                  key={stats.month}
+                  style={styles.weekCard}
+                  onPress={() => {
+                    const [year, month] = stats.month.split('-');
+                    setSelectedMonth({ month: parseInt(month) - 1, year: parseInt(year) });
+                  }}
+                >
+                  <View style={styles.weekHeader}>
+                    <Text style={styles.weekDate}>{formatMonth(stats.month)}</Text>
+                    {stats.peakDay && (
+                      <Text style={styles.peakInfo}>
+                        {t.statistics.peakDay}: {new Date(stats.peakDay).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US', { day: 'numeric' })} ({stats.peakCount})
+                      </Text>
+                    )}
+                  </View>
+                  <View style={styles.weekStats}>
+                    <View style={styles.weekStatBox}>
+                      <View
+                        style={[
+                          styles.statIndicator,
+                          { backgroundColor: Colors.dark.success },
+                        ]}
+                      />
+                      <Text style={styles.weekStatLabel}>{t.statistics.arrivals}</Text>
+                      <Text style={[styles.weekStatValue, { color: Colors.dark.success }]}>{stats.arrivals}</Text>
+                    </View>
+                    <View style={styles.weekStatBox}>
+                      <View
+                        style={[
+                          styles.statIndicator,
+                          { backgroundColor: Colors.dark.error },
+                        ]}
+                      />
+                      <Text style={styles.weekStatLabel}>{t.statistics.departures}</Text>
+                      <Text style={[styles.weekStatValue, { color: Colors.dark.error }]}>{stats.departures}</Text>
+                    </View>
+                    <View style={styles.weekStatBox}>
+                      <Text style={styles.weekStatLabel}>{language === 'fr' ? 'Total' : 'Total'}</Text>
+                      <Text style={[styles.weekStatValue, { color: Colors.dark.primary }]}>{stats.arrivals + stats.departures}</Text>
+                    </View>
+                  </View>
+                  <View style={styles.activityBar}>
+                    <View
+                      style={[
+                        styles.activityFill,
+                        {
+                          width: stats.peakCount > 0 ? `${Math.min(100, (stats.peakCount / 20) * 100)}%` : '0%',
+                        },
+                      ]}
+                    />
+                  </View>
+                </TouchableOpacity>
+              ))
+            )}
+          </View>
+        )}
+        {viewMode === 'year' && (
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>{language === 'fr' ? 'Vue globale par année' : 'Yearly overview'}</Text>
+              <TouchableOpacity
+                style={styles.selectButton}
+                onPress={() => setShowYearPicker(true)}
+              >
+                <Text style={styles.selectButtonText}>
+                  {language === 'fr' ? 'Sélectionner' : 'Select'}
+                </Text>
+                <ChevronDown size={16} color={Colors.dark.text} />
+              </TouchableOpacity>
+            </View>
+            {yearlyStats.length === 0 ? (
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyText}>
+                  {t.statistics.noData}
+                </Text>
+              </View>
+            ) : (
+              yearlyStats.map((stats) => (
+                <TouchableOpacity
+                  key={stats.year}
+                  style={styles.weekCard}
+                  onPress={() => setSelectedYear(stats.year)}
+                >
+                  <View style={styles.weekHeader}>
+                    <Text style={styles.weekDate}>{stats.year}</Text>
+                    {stats.peakMonth && (
+                      <Text style={styles.peakInfo}>
+                        {language === 'fr' ? 'Pic:' : 'Peak:'} {formatMonth(stats.peakMonth)} ({stats.peakCount})
+                      </Text>
+                    )}
+                  </View>
+                  <View style={styles.weekStats}>
+                    <View style={styles.weekStatBox}>
+                      <View
+                        style={[
+                          styles.statIndicator,
+                          { backgroundColor: Colors.dark.success },
+                        ]}
+                      />
+                      <Text style={styles.weekStatLabel}>{t.statistics.arrivals}</Text>
+                      <Text style={[styles.weekStatValue, { color: Colors.dark.success }]}>{stats.arrivals}</Text>
+                    </View>
+                    <View style={styles.weekStatBox}>
+                      <View
+                        style={[
+                          styles.statIndicator,
+                          { backgroundColor: Colors.dark.error },
+                        ]}
+                      />
+                      <Text style={styles.weekStatLabel}>{t.statistics.departures}</Text>
+                      <Text style={[styles.weekStatValue, { color: Colors.dark.error }]}>{stats.departures}</Text>
+                    </View>
+                    <View style={styles.weekStatBox}>
+                      <Text style={styles.weekStatLabel}>{language === 'fr' ? 'Total' : 'Total'}</Text>
+                      <Text style={[styles.weekStatValue, { color: Colors.dark.primary }]}>{stats.arrivals + stats.departures}</Text>
+                    </View>
+                  </View>
+                  <View style={styles.activityBar}>
+                    <View
+                      style={[
+                        styles.activityFill,
+                        {
+                          width: stats.peakCount > 0 ? `${Math.min(100, (stats.peakCount / 30) * 100)}%` : '0%',
+                        },
+                      ]}
+                    />
+                  </View>
+                </TouchableOpacity>
+              ))
+            )}
           </View>
         )}
       </ScrollView>
@@ -1056,5 +1701,28 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600' as const,
     color: Colors.dark.text,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  selectButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: Colors.dark.primary,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+  },
+  selectButtonText: {
+    fontSize: 14,
+    fontWeight: '600' as const,
+    color: Colors.dark.text,
+  },
+  pickerScroll: {
+    maxHeight: 400,
   },
 });
