@@ -1,12 +1,11 @@
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { Stack } from 'expo-router';
+import { View, Text, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
 import { Shield, Lock, Clock, UserX } from 'lucide-react-native';
 import Colors from '@/constants/colors';
 
 export default function PublicPrivacyScreen() {
   return (
-    <View style={styles.container}>
-      <Stack.Screen options={{ title: "Protection des Données" }} />
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
       <ScrollView 
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -84,11 +83,16 @@ export default function PublicPrivacyScreen() {
           <Text style={styles.footerText}>MyJacket - Conforme RGPD</Text>
         </View>
       </ScrollView>
-    </View>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: Colors.dark.background,
+  },
   container: {
     flex: 1,
     backgroundColor: Colors.dark.background,
