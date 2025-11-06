@@ -5,12 +5,13 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
+  Modal,
 } from 'react-native';
 import { useJackets } from '@/contexts/JacketContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslations } from '@/constants/translations';
 import Colors from '@/constants/colors';
-import { ArrowLeft, Calendar, CalendarDays } from 'lucide-react-native';
+import { ArrowLeft, ChevronDown } from 'lucide-react-native';
 
 interface DailyStats {
   date: string;
@@ -36,7 +37,7 @@ interface WeeklyStats {
   dailyBreakdown: DailyStats[];
 }
 
-type ViewMode = 'day' | 'week';
+type ViewMode = 'day' | 'week' | 'month' | 'year';
 
 interface SelectedWeek {
   weekStart: string;
@@ -50,6 +51,7 @@ export default function StatisticsScreen() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedWeek, setSelectedWeek] = useState<SelectedWeek | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('day');
+  const [showPicker, setShowPicker] = useState(false);
 
   const getHourlyStats = useCallback((date: string): HourlyStats[] => {
     const hourlyMap = new Map<number, HourlyStats>();
@@ -479,22 +481,80 @@ export default function StatisticsScreen() {
       <View style={styles.topBar}>
         <Text style={styles.topBarTitle}>{t.statistics.title}</Text>
       </View>
-      <View style={styles.tabsContainer}>
+      <View style={styles.pickerContainer}>
         <TouchableOpacity
-          style={[styles.tab, viewMode === 'day' && styles.tabActive]}
-          onPress={() => setViewMode('day')}
+          style={styles.pickerButton}
+          onPress={() => setShowPicker(true)}
         >
-          <Calendar size={20} color={viewMode === 'day' ? Colors.dark.text : Colors.dark.textSecondary} />
-          <Text style={[styles.tabText, viewMode === 'day' && styles.tabTextActive]}>{t.statistics.daily}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.tab, viewMode === 'week' && styles.tabActive]}
-          onPress={() => setViewMode('week')}
-        >
-          <CalendarDays size={20} color={viewMode === 'week' ? Colors.dark.text : Colors.dark.textSecondary} />
-          <Text style={[styles.tabText, viewMode === 'week' && styles.tabTextActive]}>{t.statistics.weekly}</Text>
+          <Text style={styles.pickerButtonText}>
+            {viewMode === 'day' && t.statistics.daily}
+            {viewMode === 'week' && t.statistics.weekly}
+            {viewMode === 'month' && (language === 'fr' ? 'Mois' : 'Month')}
+            {viewMode === 'year' && (language === 'fr' ? 'Année' : 'Year')}
+          </Text>
+          <ChevronDown size={20} color={Colors.dark.text} />
         </TouchableOpacity>
       </View>
+
+      <Modal
+        visible={showPicker}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowPicker(false)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowPicker(false)}
+        >
+          <View style={styles.pickerModal}>
+            <TouchableOpacity
+              style={[styles.pickerOption, viewMode === 'day' && styles.pickerOptionActive]}
+              onPress={() => {
+                setViewMode('day');
+                setShowPicker(false);
+              }}
+            >
+              <Text style={[styles.pickerOptionText, viewMode === 'day' && styles.pickerOptionTextActive]}>
+                {t.statistics.daily}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.pickerOption, viewMode === 'week' && styles.pickerOptionActive]}
+              onPress={() => {
+                setViewMode('week');
+                setShowPicker(false);
+              }}
+            >
+              <Text style={[styles.pickerOptionText, viewMode === 'week' && styles.pickerOptionTextActive]}>
+                {t.statistics.weekly}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.pickerOption, viewMode === 'month' && styles.pickerOptionActive]}
+              onPress={() => {
+                setViewMode('month');
+                setShowPicker(false);
+              }}
+            >
+              <Text style={[styles.pickerOptionText, viewMode === 'month' && styles.pickerOptionTextActive]}>
+                {language === 'fr' ? 'Mois' : 'Month'}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.pickerOption, viewMode === 'year' && styles.pickerOptionActive]}
+              onPress={() => {
+                setViewMode('year');
+                setShowPicker(false);
+              }}
+            >
+              <Text style={[styles.pickerOptionText, viewMode === 'year' && styles.pickerOptionTextActive]}>
+                {language === 'fr' ? 'Année' : 'Year'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
       
       <ScrollView style={styles.content}>
         {viewMode === 'day' ? (
@@ -828,34 +888,66 @@ const styles = StyleSheet.create({
     marginLeft: 6,
     fontWeight: '500' as const,
   },
-  tabsContainer: {
-    flexDirection: 'row',
+  pickerContainer: {
     backgroundColor: Colors.dark.card,
     borderBottomWidth: 1,
     borderBottomColor: Colors.dark.border,
     paddingHorizontal: 20,
+    paddingVertical: 16,
   },
-  tab: {
-    flex: 1,
+  pickerButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
+    justifyContent: 'space-between',
+    backgroundColor: Colors.dark.primary,
     paddingVertical: 16,
-    borderBottomWidth: 2,
-    borderBottomColor: 'transparent',
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    borderWidth: 0,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
-  tabActive: {
-    borderBottomColor: Colors.dark.primary,
-  },
-  tabText: {
-    fontSize: 15,
-    fontWeight: '500' as const,
-    color: Colors.dark.textSecondary,
-  },
-  tabTextActive: {
+  pickerButtonText: {
+    fontSize: 18,
+    fontWeight: '700' as const,
     color: Colors.dark.text,
-    fontWeight: '600' as const,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  pickerModal: {
+    backgroundColor: Colors.dark.card,
+    borderRadius: 12,
+    width: '80%',
+    maxWidth: 300,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: Colors.dark.border,
+  },
+  pickerOption: {
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.dark.border,
+  },
+  pickerOptionActive: {
+    backgroundColor: Colors.dark.primary + '20',
+  },
+  pickerOptionText: {
+    fontSize: 16,
+    fontWeight: '500' as const,
+    color: Colors.dark.text,
+    textAlign: 'center',
+  },
+  pickerOptionTextActive: {
+    fontWeight: '700' as const,
+    color: Colors.dark.primary,
   },
   weekCard: {
     backgroundColor: Colors.dark.card,
