@@ -25,8 +25,6 @@ export default function DepositScreen() {
   const [countrySearch, setCountrySearch] = useState('');
   const [showVerification, setShowVerification] = useState(false);
   const [pendingJacket, setPendingJacket] = useState<any>(null);
-  const [showGDPRConsent, setShowGDPRConsent] = useState(false);
-  const [hasConsent, setHasConsent] = useState(false);
   const qrRef = useRef<any>(null);
 
   const panResponder = PanResponder.create({
@@ -113,11 +111,6 @@ export default function DepositScreen() {
   const handleSubmit = async () => {
     if (!validateInputs()) return;
 
-    if (!hasConsent) {
-      setShowGDPRConsent(true);
-      return;
-    }
-
     setIsSubmitting(true);
 
     const qrCode = `MYJACKET-${Date.now()}-${hangerNumber}`;
@@ -171,25 +164,6 @@ export default function DepositScreen() {
     setSelectedCountry(countries[0]);
     setPendingJacket(null);
     setShowVerification(false);
-    setHasConsent(false);
-  };
-
-  const handleGDPRAccept = () => {
-    setHasConsent(true);
-    setShowGDPRConsent(false);
-    setTimeout(() => {
-      handleSubmit();
-    }, 300);
-  };
-
-  const handleGDPRDecline = () => {
-    setShowGDPRConsent(false);
-    Alert.alert(
-      language === 'fr' ? 'Consentement requis' : 'Consent required',
-      language === 'fr' 
-        ? 'Nous ne pouvons pas enregistrer votre veste sans votre consentement pour la collecte de votre numéro de téléphone.'
-        : 'We cannot register your jacket without your consent to collect your phone number.'
-    );
   };
 
   const handleConfirmDelivery = () => {
@@ -547,52 +521,6 @@ export default function DepositScreen() {
               )}
               showsVerticalScrollIndicator={false}
             />
-          </View>
-        </View>
-      </Modal>
-
-      <Modal
-        visible={showGDPRConsent}
-        animationType="fade"
-        transparent={true}
-        onRequestClose={() => setShowGDPRConsent(false)}
-      >
-        <View style={styles.verificationOverlay}>
-          <View style={styles.gdprConsentContent}>
-            <View style={styles.gdprConsentIcon}>
-              <AlertCircle size={48} color={Colors.dark.primary} />
-            </View>
-            
-            <Text style={styles.gdprConsentTitle}>{t.gdpr.consentTitle}</Text>
-            <Text style={styles.gdprConsentMessage}>
-              {t.gdpr.consentMessage}
-            </Text>
-
-            <View style={styles.verificationButtons}>
-              <Pressable
-                style={({ pressed }) => [
-                  styles.verificationButton,
-                  styles.confirmButton,
-                  pressed && styles.verificationButtonPressed
-                ]}
-                onPress={handleGDPRAccept}
-              >
-                <CheckCircle size={20} color="white" />
-                <Text style={styles.confirmButtonText}>{t.gdpr.consentAccept}</Text>
-              </Pressable>
-
-              <Pressable
-                style={({ pressed }) => [
-                  styles.verificationButton,
-                  styles.cancelButton,
-                  pressed && styles.verificationButtonPressed
-                ]}
-                onPress={handleGDPRDecline}
-              >
-                <X size={20} color="white" />
-                <Text style={styles.cancelButtonText}>{t.gdpr.consentDecline}</Text>
-              </Pressable>
-            </View>
           </View>
         </View>
       </Modal>
@@ -1056,32 +984,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600' as const,
     color: 'white',
-  },
-  gdprConsentContent: {
-    backgroundColor: Colors.dark.card,
-    borderRadius: 20,
-    padding: 24,
-    width: '100%',
-    maxWidth: 400,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: Colors.dark.border,
-  },
-  gdprConsentIcon: {
-    marginBottom: 20,
-  },
-  gdprConsentTitle: {
-    fontSize: 24,
-    fontWeight: '700' as const,
-    color: Colors.dark.text,
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  gdprConsentMessage: {
-    fontSize: 15,
-    color: Colors.dark.textSecondary,
-    textAlign: 'center',
-    marginBottom: 32,
-    lineHeight: 22,
   },
 });
