@@ -1,33 +1,20 @@
-import { View, Text, StyleSheet, ScrollView, Pressable, Platform } from 'react-native';
-import { Shield, Lock, Clock, UserX, ArrowLeft } from 'lucide-react-native';
-import { Stack, router } from 'expo-router';
+import { View, Text, StyleSheet, ScrollView, Platform } from 'react-native';
+import { Shield, Lock, Clock, UserX, Mail } from 'lucide-react-native';
+import { Stack, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Colors from '@/constants/colors';
+import { useTranslations } from '@/constants/translations';
+import { Language } from '@/contexts/LanguageContext';
 
 export default function PublicPrivacyScreen() {
   const insets = useSafeAreaInsets();
+  const params = useLocalSearchParams<{ lang?: string }>();
+  const language = (params.lang === 'en' ? 'en' : 'fr') as Language;
+  const t = useTranslations(language);
 
   return (
     <View style={[styles.container, Platform.OS === 'web' && { paddingTop: insets.top }]}>
-      <Stack.Screen options={{ title: 'Protection des Données', headerShown: false }} />
-      
-      <View style={styles.header}>
-        <Pressable
-          style={({ pressed }) => [
-            styles.backIconButton,
-            pressed && styles.backIconButtonPressed
-          ]}
-          onPress={() => {
-            if (router.canGoBack()) {
-              router.back();
-            } else {
-              router.push('/');
-            }
-          }}
-        >
-          <ArrowLeft size={24} color={Colors.dark.text} />
-        </Pressable>
-      </View>
+      <Stack.Screen options={{ title: t.gdpr.privacyTitle, headerShown: false }} />
 
       <View style={styles.contentWrapper}>
       <ScrollView 
@@ -37,42 +24,48 @@ export default function PublicPrivacyScreen() {
       >
         <View style={styles.iconHeader}>
           <Shield size={48} color={Colors.dark.primary} />
-          <Text style={styles.title}>Protection des Données</Text>
+          <Text style={styles.title}>{t.gdpr.privacyTitle}</Text>
           <Text style={styles.subtitle}>
-            Nous prenons la protection de vos données très au sérieux.
+            {language === 'fr'
+              ? 'Nous prenons la protection de vos données très au sérieux.'
+              : 'We take the protection of your data very seriously.'}
           </Text>
         </View>
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Lock size={24} color={Colors.dark.primary} />
-            <Text style={styles.sectionTitle}>Données Collectées</Text>
+            <Text style={styles.sectionTitle}>{t.gdpr.dataCollection}</Text>
           </View>
-          <Text style={styles.sectionText}>
-            Nous collectons uniquement votre numéro de téléphone et les horodatages (arrivée et départ) nécessaires pour gérer le dépôt de votre veste. Aucune autre donnée personnelle n&apos;est collectée.
-          </Text>
+          <Text style={styles.sectionText}>{t.gdpr.dataCollectionText}</Text>
         </View>
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Shield size={24} color={Colors.dark.primary} />
-            <Text style={styles.sectionTitle}>Sécurité des Données</Text>
+            <Text style={styles.sectionTitle}>{t.gdpr.dataSecurity}</Text>
           </View>
-          <Text style={styles.sectionText}>
-            Nous utilisons les meilleures pratiques de sécurité pour protéger vos données :
-          </Text>
+          <Text style={styles.sectionText}>{t.gdpr.dataSecurityText}</Text>
           <View style={styles.bulletPoints}>
             <Text style={styles.bulletPoint}>
-              • Chiffrement AES-256 pour tous les numéros de téléphone
+              • {language === 'fr' 
+                ? 'Chiffrement AES-256 pour tous les numéros de téléphone'
+                : 'AES-256 encryption for all phone numbers'}
             </Text>
             <Text style={styles.bulletPoint}>
-              • Communication sécurisée via HTTPS
+              • {language === 'fr'
+                ? 'Communication sécurisée via HTTPS'
+                : 'Secure communication via HTTPS'}
             </Text>
             <Text style={styles.bulletPoint}>
-              • Identifiants QR code temporaires et uniques
+              • {language === 'fr'
+                ? 'Identifiants QR code temporaires et uniques'
+                : 'Temporary and unique QR code identifiers'}
             </Text>
             <Text style={styles.bulletPoint}>
-              • Aucun tracking externe ou publicité
+              • {language === 'fr'
+                ? 'Aucun tracking externe ou publicité'
+                : 'No external tracking or advertising'}
             </Text>
           </View>
         </View>
@@ -80,14 +73,14 @@ export default function PublicPrivacyScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Clock size={24} color={Colors.dark.primary} />
-            <Text style={styles.sectionTitle}>Conservation des Données</Text>
+            <Text style={styles.sectionTitle}>{t.gdpr.dataRetention}</Text>
           </View>
-          <Text style={styles.sectionText}>
-            Vos données sont conservées uniquement pendant la durée nécessaire au service de vestiaire. Elles sont automatiquement supprimées 7 jours après le dépôt de votre veste.
-          </Text>
+          <Text style={styles.sectionText}>{t.gdpr.dataRetentionText}</Text>
           <View style={styles.highlightBox}>
             <Text style={styles.highlightText}>
-              ⚡ Suppression automatique après 7 jours
+              {language === 'fr'
+                ? '⚡ Suppression automatique après 7 jours'
+                : '⚡ Automatic deletion after 7 days'}
             </Text>
           </View>
         </View>
@@ -95,16 +88,40 @@ export default function PublicPrivacyScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <UserX size={24} color={Colors.dark.primary} />
-            <Text style={styles.sectionTitle}>Vos Droits</Text>
+            <Text style={styles.sectionTitle}>{t.gdpr.yourRights}</Text>
+          </View>
+          <Text style={styles.sectionText}>{t.gdpr.yourRightsText}</Text>
+        </View>
+
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Mail size={24} color={Colors.dark.primary} />
+            <Text style={styles.sectionTitle}>
+              {language === 'fr' ? 'Contact' : 'Contact'}
+            </Text>
           </View>
           <Text style={styles.sectionText}>
-            Conformément au RGPD, vous disposez des droits suivants : accès, rectification, suppression, limitation du traitement, portabilité et opposition. Pour exercer ces droits, contactez-nous à privacy@myjacket.fr.
+            {language === 'fr'
+              ? 'Pour toute question concernant vos données personnelles ou pour exercer vos droits RGPD, contactez-nous à :'
+              : 'For any questions regarding your personal data or to exercise your GDPR rights, contact us at:'}
           </Text>
+          <View style={styles.contactBox}>
+            <Mail size={20} color={Colors.dark.primary} />
+            <Text style={styles.contactText}>
+              {language === 'fr' ? 'privacy@myjacket.fr' : 'privacy@myjacket.com'}
+            </Text>
+          </View>
         </View>
 
         <View style={styles.footer}>
-          <Text style={styles.footerText}>Dernière mise à jour : Janvier 2025</Text>
-          <Text style={styles.footerText}>MyJacket - Conforme RGPD</Text>
+          <Text style={styles.footerText}>
+            {language === 'fr'
+              ? 'Dernière mise à jour : Janvier 2025'
+              : 'Last updated: January 2025'}
+          </Text>
+          <Text style={styles.footerText}>
+            MyJacket - {language === 'fr' ? 'Conforme RGPD' : 'GDPR Compliant'}
+          </Text>
         </View>
       </ScrollView>
       </View>
@@ -117,24 +134,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.dark.background,
   },
-  header: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 10,
-  },
-  backIconButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: Colors.dark.card,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: Colors.dark.border,
-  },
-  backIconButtonPressed: {
-    backgroundColor: Colors.dark.cardHover,
-  },
+
   contentWrapper: {
     flex: 1,
   },
@@ -218,5 +218,21 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.dark.textTertiary,
     textAlign: 'center',
+  },
+  contactBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: Colors.dark.card,
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: Colors.dark.border,
+    marginTop: 8,
+  },
+  contactText: {
+    fontSize: 16,
+    fontWeight: '600' as const,
+    color: Colors.dark.text,
   },
 });
