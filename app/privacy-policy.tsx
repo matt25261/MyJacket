@@ -1,17 +1,41 @@
-import { View, Text, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
-import { Shield, Lock, Clock, UserX } from 'lucide-react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable, Platform } from 'react-native';
+import { Shield, Lock, Clock, UserX, ArrowLeft } from 'lucide-react-native';
+import { Stack, router } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Colors from '@/constants/colors';
 
 export default function PublicPrivacyScreen() {
+  const insets = useSafeAreaInsets();
+
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
+    <View style={[styles.container, Platform.OS === 'web' && { paddingTop: insets.top }]}>
+      <Stack.Screen options={{ title: 'Protection des Données', headerShown: false }} />
+      
+      <View style={styles.header}>
+        <Pressable
+          style={({ pressed }) => [
+            styles.backIconButton,
+            pressed && styles.backIconButtonPressed
+          ]}
+          onPress={() => {
+            if (router.canGoBack()) {
+              router.back();
+            } else {
+              router.push('/');
+            }
+          }}
+        >
+          <ArrowLeft size={24} color={Colors.dark.text} />
+        </Pressable>
+      </View>
+
+      <View style={styles.contentWrapper}>
       <ScrollView 
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.header}>
+        <View style={styles.iconHeader}>
           <Shield size={48} color={Colors.dark.primary} />
           <Text style={styles.title}>Protection des Données</Text>
           <Text style={styles.subtitle}>
@@ -84,30 +108,47 @@ export default function PublicPrivacyScreen() {
         </View>
       </ScrollView>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: Colors.dark.background,
-  },
   container: {
     flex: 1,
     backgroundColor: Colors.dark.background,
+  },
+  header: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 10,
+  },
+  backIconButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: Colors.dark.card,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: Colors.dark.border,
+  },
+  backIconButtonPressed: {
+    backgroundColor: Colors.dark.cardHover,
+  },
+  contentWrapper: {
+    flex: 1,
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
     padding: 20,
+    paddingTop: 10,
     paddingBottom: 40,
   },
-  header: {
+  iconHeader: {
     alignItems: 'center',
     marginBottom: 32,
-    paddingTop: 20,
   },
   title: {
     fontSize: 28,
