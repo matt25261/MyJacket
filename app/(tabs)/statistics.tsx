@@ -73,8 +73,7 @@ export default function StatisticsScreen() {
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('day');
   const [showPicker, setShowPicker] = useState(false);
-  const [showMonthPicker, setShowMonthPicker] = useState(false);
-  const [showYearPicker, setShowYearPicker] = useState(false);
+
 
   const getHourlyStats = useCallback((date: string): HourlyStats[] => {
     const hourlyMap = new Map<number, HourlyStats>();
@@ -445,17 +444,7 @@ export default function StatisticsScreen() {
     );
   }, [selectedDateStats]);
 
-  const availableMonths = useMemo(() => {
-    return monthlyStats.map(m => ({
-      month: parseInt(m.month.split('-')[1]) - 1,
-      year: m.year,
-      label: formatMonth(m.month)
-    }));
-  }, [monthlyStats, language]);
 
-  const availableYears = useMemo(() => {
-    return yearlyStats.map(y => y.year);
-  }, [yearlyStats]);
 
   if (selectedMonth) {
     const monthData = monthlyStats.find(
@@ -994,71 +983,7 @@ export default function StatisticsScreen() {
         </TouchableOpacity>
       </Modal>
 
-      <Modal
-        visible={showMonthPicker}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setShowMonthPicker(false)}
-      >
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPress={() => setShowMonthPicker(false)}
-        >
-          <View style={styles.pickerModal}>
-            <ScrollView style={styles.pickerScroll}>
-              {availableMonths.map((m, idx) => (
-                <TouchableOpacity
-                  key={`${m.year}-${m.month}`}
-                  style={[
-                    styles.pickerOption,
-                    idx === availableMonths.length - 1 && { borderBottomWidth: 0 }
-                  ]}
-                  onPress={() => {
-                    setSelectedMonth({ month: m.month, year: m.year });
-                    setShowMonthPicker(false);
-                  }}
-                >
-                  <Text style={styles.pickerOptionText}>{m.label}</Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
-        </TouchableOpacity>
-      </Modal>
 
-      <Modal
-        visible={showYearPicker}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setShowYearPicker(false)}
-      >
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPress={() => setShowYearPicker(false)}
-        >
-          <View style={styles.pickerModal}>
-            <ScrollView style={styles.pickerScroll}>
-              {availableYears.map((year, idx) => (
-                <TouchableOpacity
-                  key={year}
-                  style={[
-                    styles.pickerOption,
-                    idx === availableYears.length - 1 && { borderBottomWidth: 0 }
-                  ]}
-                  onPress={() => {
-                    setSelectedYear(year);
-                    setShowYearPicker(false);
-                  }}
-                >
-                  <Text style={styles.pickerOptionText}>{year}</Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
-        </TouchableOpacity>
-      </Modal>
       
       <ScrollView style={styles.content}>
         {viewMode === 'day' && (
