@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TextInput, FlatList, Pressable, Modal, Keyboard, KeyboardAvoidingView, Platform, PanResponder } from 'react-native';
+import { View, Text, StyleSheet, TextInput, FlatList, Pressable, Modal, Keyboard, KeyboardAvoidingView, Platform, PanResponder, Alert } from 'react-native';
 import { Stack } from 'expo-router';
 import { useState, useEffect } from 'react';
 import { Search, Phone, Hash, Package, CheckCircle, Clock, ChevronDown, X } from 'lucide-react-native';
@@ -11,7 +11,7 @@ import { countries, Country } from '@/constants/countries';
 import QRCode from 'react-native-qrcode-svg';
 
 export default function SearchScreen() {
-  const { jackets } = useJackets();
+  const { jackets, retrieveJacket } = useJackets();
   const { language } = useLanguage();
   const t = useTranslations(language);
   const [searchQuery, setSearchQuery] = useState('');
@@ -20,6 +20,7 @@ export default function SearchScreen() {
   const [countrySearch, setCountrySearch] = useState('');
   const [selectedJacket, setSelectedJacket] = useState<Jacket | null>(null);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const [isRetrieving, setIsRetrieving] = useState(false);
 
   const panResponder = PanResponder.create({
     onStartShouldSetPanResponder: () => false,
@@ -98,6 +99,46 @@ export default function SearchScreen() {
       hour: '2-digit',
       minute: '2-digit'
     });
+  };
+
+  const handleRetrieveJacket = () => {
+    if (!selectedJacket) return;
+    
+    Alert.alert(
+      language === 'fr' ? 'Confirmer la récupération' : 'Confirm retrieval',
+      language === 'fr' 
+        ? `Marquer la veste n°${selectedJacket.hangerNumber} comme récupérée ?`
+        : `Mark jacket #${selectedJacket.hangerNumber} as retrieved?`,
+      [
+        {
+          text: language === 'fr' ? 'Annuler' : 'Cancel',
+          style: 'cancel'
+        },
+        {
+          text: language === 'fr' ? 'Récupérer' : 'Retrieve',
+          style: 'default',
+          onPress: async () => {
+            setIsRetrieving(true);
+            try {
+              retrieveJacket(selectedJacket.id);
+              Alert.alert(
+                language === 'fr' ? 'Succès' : 'Success',
+                language === 'fr' ? 'La veste a été marquée comme récupérée' : 'The jacket has been marked as retrieved'
+              );
+              setSelectedJacket(null);
+            } catch (error) {
+              console.error('Error retrieving jacket:', error);
+              Alert.alert(
+                language === 'fr' ? 'Erreur' : 'Error',
+                language === 'fr' ? 'Une erreur est survenue' : 'An error occurred'
+              );
+            } finally {
+              setIsRetrieving(false);
+            }
+          }
+        }
+      ]
+    );
   };
 
   const renderJacket = ({ item }: { item: Jacket }) => (
@@ -377,6 +418,25 @@ export default function SearchScreen() {
                     </View>
                   )}
                 </View>
+
+                {selectedJacket.status === 'active' && (
+                  <Pressable
+                    style={({ pressed }) => [
+                      styles.retrieveButton,
+                      pressed && styles.retrieveButtonPressed,
+                      isRetrieving && styles.retrieveButtonDisabled
+                    ]}
+                    onPress={handleRetrieveJacket}
+                    disabled={isRetrieving}
+                  >
+                    <CheckCircle size={20} color="white" />
+                    <Text style={styles.retrieveButtonText}>
+                      {isRetrieving 
+                        ? (language === 'fr' ? 'En cours...' : 'Processing...') 
+                        : (language === 'fr' ? 'Marquer comme récupérée' : 'Mark as retrieved')}
+                    </Text>
+                  </Pressable>
+                )}
               </View>
             )}
           </View>
@@ -719,5 +779,26 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600' as const,
     color: Colors.dark.text,
+  },
+  retrieveButton: {
+    marginTop: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.dark.success,
+    borderRadius: 12,
+    paddingVertical: 16,
+    gap: 8,
+  },
+  retrieveButtonPressed: {
+    backgroundColor: Colors.dark.success + 'CC',
+  },
+  retrieveButtonDisabled: {
+    backgroundColor: Colors.dark.success + '66',
+  },
+  retrieveButtonText: {
+    fontSize: 16,
+    fontWeight: '600' as const,
+    color: 'white',
   },
 });
