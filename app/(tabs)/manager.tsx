@@ -344,6 +344,13 @@ export default function ManagerScreen() {
                     <Text style={styles.accountName}>{accountStat.username}</Text>
                     <Text style={styles.accountTotal}>{accountStat.total}</Text>
                   </View>
+                  <View style={styles.accountStatsContainer}>
+                    <View style={styles.accountStatRow}>
+                      <View style={[styles.statIndicator, { backgroundColor: Colors.dark.primary }]} />
+                      <Text style={styles.accountStatLabel}>{language === 'fr' ? 'Déposées' : 'Deposited'}</Text>
+                      <Text style={styles.accountStatValue}>{accountStat.total}</Text>
+                    </View>
+                  </View>
                   <View style={styles.accountStats}>
                     <View style={styles.accountStatItem}>
                       <View style={[styles.statIndicator, { backgroundColor: Colors.dark.success }]} />
@@ -596,6 +603,15 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '700' as const,
     color: Colors.dark.primary,
+  },
+  accountStatsContainer: {
+    marginBottom: 8,
+  },
+  accountStatRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
   },
   accountStats: {
     flexDirection: 'row',
