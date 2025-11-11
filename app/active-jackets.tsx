@@ -1,6 +1,6 @@
-import { View, Text, StyleSheet, ScrollView, Pressable, Linking, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable, Linking, Alert, Platform } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
-import { Package, Phone, Calendar, ChevronLeft } from 'lucide-react-native';
+import { Package, Phone, Calendar, ChevronLeft, MessageCircle } from 'lucide-react-native';
 import { useActiveJackets } from '@/contexts/JacketContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslations } from '@/constants/translations';
@@ -29,6 +29,17 @@ export default function ActiveJacketsScreen() {
         },
       ]
     );
+  };
+
+  const handleMessage = (phoneNumber: string, countryCode: string) => {
+    const message = language === 'fr'
+      ? 'Bonjour, vous avez oublié votre veste dans notre établissement. Merci de venir la récupérer dès que possible.'
+      : 'Hello, you forgot your jacket at our establishment. Please come and pick it up as soon as possible.';
+    
+    const fullNumber = `${countryCode}${phoneNumber}`;
+    const smsUrl = `sms:${fullNumber}${Platform.OS === 'ios' ? '&' : '?'}body=${encodeURIComponent(message)}`;
+    
+    Linking.openURL(smsUrl);
   };
 
   const formatDate = (dateString: string) => {
@@ -117,18 +128,33 @@ export default function ActiveJacketsScreen() {
                   </View>
                 </View>
 
-                <Pressable 
-                  style={({ pressed }) => [
-                    styles.callButton,
-                    pressed && styles.callButtonPressed
-                  ]}
-                  onPress={() => handleCall(jacket.phoneNumber, jacket.countryCode)}
-                >
-                  <Phone size={18} color="#fff" />
-                  <Text style={styles.callButtonText}>
-                    {language === 'fr' ? 'Appeler' : 'Call'}
-                  </Text>
-                </Pressable>
+                <View style={styles.actionButtonsRow}>
+                  <Pressable 
+                    style={({ pressed }) => [
+                      styles.callButton,
+                      pressed && styles.callButtonPressed
+                    ]}
+                    onPress={() => handleCall(jacket.phoneNumber, jacket.countryCode)}
+                  >
+                    <Phone size={18} color="#fff" />
+                    <Text style={styles.callButtonText}>
+                      {language === 'fr' ? 'Appeler' : 'Call'}
+                    </Text>
+                  </Pressable>
+
+                  <Pressable 
+                    style={({ pressed }) => [
+                      styles.messageButton,
+                      pressed && styles.messageButtonPressed
+                    ]}
+                    onPress={() => handleMessage(jacket.phoneNumber, jacket.countryCode)}
+                  >
+                    <MessageCircle size={18} color="#fff" />
+                    <Text style={styles.messageButtonText}>
+                      {language === 'fr' ? 'Message' : 'Message'}
+                    </Text>
+                  </Pressable>
+                </View>
               </View>
             </View>
           ))
@@ -270,21 +296,45 @@ const styles = StyleSheet.create({
     color: Colors.dark.text,
     fontWeight: '600' as const,
   },
+  actionButtonsRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 4,
+  },
   callButton: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
     backgroundColor: Colors.dark.success,
     paddingVertical: 12,
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     borderRadius: 12,
-    marginTop: 4,
   },
   callButtonPressed: {
     opacity: 0.8,
   },
   callButtonText: {
+    fontSize: 16,
+    fontWeight: '600' as const,
+    color: '#fff',
+  },
+  messageButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: Colors.dark.primary,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+  },
+  messageButtonPressed: {
+    opacity: 0.8,
+  },
+  messageButtonText: {
     fontSize: 16,
     fontWeight: '600' as const,
     color: '#fff',
