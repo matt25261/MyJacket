@@ -128,8 +128,10 @@ export default function DepositScreen() {
     };
 
     const fullPhoneNumber = `${jacket.countryCode}${jacket.phoneNumber}`;
-    const privacyUrl = `https://myqt45gzmdli8zqxtr559.rork.app/privacy-policy?lang=${language}`;
-    const message = `🎟️ MyJacket - Votre QR code de récupération\n\nCintre n°${jacket.hangerNumber}\n\nVoici votre QR code :\n${jacket.deepLink}\n\nPrésentez ce code au vestiaire pour récupérer votre veste.\n\n📋 Politique de confidentialité :\n${privacyUrl}\n\nVos données sont protégées et seront supprimées automatiquement après 7 jours.`;
+    const privacyText = language === 'fr' 
+      ? `📋 Protection de vos données:\n\n🔒 COLLECTE: Seuls votre numéro de téléphone et un QR code temporaire sont collectés.\n\n🛡️ SÉCURITÉ: Chiffrement AES-256 et communication HTTPS sécurisée.\n\n⏱️ CONSERVATION: Suppression automatique après 7 jours.\n\n✅ VOS DROITS: Demandez la suppression à tout moment via privacy@myjacket.fr\n\nVos données ne sont jamais partagées avec des tiers.`
+      : `📋 Data Protection:\n\n🔒 COLLECTION: Only your phone number and temporary QR code are collected.\n\n🛡️ SECURITY: AES-256 encryption and secure HTTPS communication.\n\n⏱️ RETENTION: Automatic deletion after 7 days.\n\n✅ YOUR RIGHTS: Request deletion anytime via privacy@myjacket.com\n\nYour data is never shared with third parties.`;
+    const message = `🎟️ MyJacket - Votre QR code de récupération\n\nCintre n°${jacket.hangerNumber}\n\nVoici votre QR code :\n${jacket.deepLink}\n\nPrésentez ce code au vestiaire pour récupérer votre veste.\n\n${privacyText}`;
     
     try {
       if (Platform.OS === 'web') {
@@ -202,8 +204,10 @@ export default function DepositScreen() {
     const jacket = jackets.find(j => j.qrCode === generatedQR);
     if (!jacket) return;
 
-    const privacyUrl = `https://myqt45gzmdli8zqxtr559.rork.app/privacy-policy?lang=${language}`;
-    const message = `🎟️ MyJacket - Votre QR code de récupération\n\nCintre n°${jacket.hangerNumber}\n\nVoici votre QR code :\n${jacket.deepLink}\n\nPrésentez ce code au vestiaire pour récupérer votre veste.\n\n📋 Protection des données\n${privacyUrl}`;
+    const privacyText = language === 'fr' 
+      ? `📋 Protection de vos données:\n\n🔒 COLLECTE: Seuls votre numéro de téléphone et un QR code temporaire sont collectés.\n\n🛡️ SÉCURITÉ: Chiffrement AES-256 et communication HTTPS sécurisée.\n\n⏱️ CONSERVATION: Suppression automatique après 7 jours.\n\n✅ VOS DROITS: Demandez la suppression à tout moment via privacy@myjacket.fr\n\nVos données ne sont jamais partagées avec des tiers.`
+      : `📋 Data Protection:\n\n🔒 COLLECTION: Only your phone number and temporary QR code are collected.\n\n🛡️ SECURITY: AES-256 encryption and secure HTTPS communication.\n\n⏱️ RETENTION: Automatic deletion after 7 days.\n\n✅ YOUR RIGHTS: Request deletion anytime via privacy@myjacket.com\n\nYour data is never shared with third parties.`;
+    const message = `🎟️ MyJacket - Votre QR code de récupération\n\nCintre n°${jacket.hangerNumber}\n\nVoici votre QR code :\n${jacket.deepLink}\n\nPrésentez ce code au vestiaire pour récupérer votre veste.\n\n${privacyText}`;
 
     try {
       await Share.share({
@@ -223,8 +227,10 @@ export default function DepositScreen() {
     if (!jacket) return;
 
     const fullPhoneNumber = `${jacket.countryCode}${jacket.phoneNumber}`;
-    const privacyUrl = `https://myqt45gzmdli8zqxtr559.rork.app/privacy-policy?lang=${language}`;
-    const message = `🎟️ MyJacket - Votre QR code de récupération\n\nCintre n°${jacket.hangerNumber}\n\nVoici votre QR code :\n${jacket.deepLink}\n\nPrésentez ce code au vestiaire pour récupérer votre veste.\n\n📋 Politique de confidentialité :\n${privacyUrl}\n\nVos données sont protégées et seront supprimées automatiquement après 7 jours.`;
+    const privacyText = language === 'fr' 
+      ? `📋 Protection de vos données:\n\n🔒 COLLECTE: Seuls votre numéro de téléphone et un QR code temporaire sont collectés.\n\n🛡️ SÉCURITÉ: Chiffrement AES-256 et communication HTTPS sécurisée.\n\n⏱️ CONSERVATION: Suppression automatique après 7 jours.\n\n✅ VOS DROITS: Demandez la suppression à tout moment via privacy@myjacket.fr\n\nVos données ne sont jamais partagées avec des tiers.`
+      : `📋 Data Protection:\n\n🔒 COLLECTION: Only your phone number and temporary QR code are collected.\n\n🛡️ SECURITY: AES-256 encryption and secure HTTPS communication.\n\n⏱️ RETENTION: Automatic deletion after 7 days.\n\n✅ YOUR RIGHTS: Request deletion anytime via privacy@myjacket.com\n\nYour data is never shared with third parties.`;
+    const message = `🎟️ MyJacket - Votre QR code de récupération\n\nCintre n°${jacket.hangerNumber}\n\nVoici votre QR code :\n${jacket.deepLink}\n\nPrésentez ce code au vestiaire pour récupérer votre veste.\n\n${privacyText}`;
     
     try {
       if (Platform.OS === 'web') {
