@@ -54,17 +54,41 @@ export default function ManagerScreen() {
     setIsLoading(true);
     try {
       const statsPromises = VALID_USERS.map(async (username) => {
-        const storageKey = `@myjacket_data_${username}`;
-        const stored = await AsyncStorage.getItem(storageKey);
-        const jackets: Jacket[] = stored ? JSON.parse(stored) : [];
-        
-        return {
-          username,
-          total: jackets.length,
-          active: jackets.filter(j => j.status === 'active').length,
-          retrieved: jackets.filter(j => j.status === 'retrieved').length,
-          jackets,
-        };
+        try {
+          const storageKey = `@myjacket_data_${username}`;
+          const stored = await AsyncStorage.getItem(storageKey);
+          
+          let jackets: Jacket[] = [];
+          if (stored) {
+            try {
+              jackets = JSON.parse(stored);
+              if (!Array.isArray(jackets)) {
+                console.warn(`Invalid data format for ${username}, resetting to empty array`);
+                jackets = [];
+              }
+            } catch (parseError) {
+              console.error(`Error parsing data for ${username}:`, parseError);
+              jackets = [];
+            }
+          }
+          
+          return {
+            username,
+            total: jackets.length,
+            active: jackets.filter(j => j.status === 'active').length,
+            retrieved: jackets.filter(j => j.status === 'retrieved').length,
+            jackets,
+          };
+        } catch (userError) {
+          console.error(`Error loading data for ${username}:`, userError);
+          return {
+            username,
+            total: 0,
+            active: 0,
+            retrieved: 0,
+            jackets: [],
+          };
+        }
       });
 
       const stats = await Promise.all(statsPromises);

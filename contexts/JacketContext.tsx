@@ -22,12 +22,26 @@ export const [JacketProvider, useJackets] = createContextHook(() => {
       const storageKey = getStorageKey(user.username);
       const stored = await AsyncStorage.getItem(storageKey);
       if (stored) {
-        setJackets(JSON.parse(stored));
+        try {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) {
+            setJackets(parsed);
+          } else {
+            console.warn('Invalid data format in storage, resetting to empty array');
+            setJackets([]);
+            await AsyncStorage.setItem(storageKey, JSON.stringify([]));
+          }
+        } catch (parseError) {
+          console.error('Error parsing stored data:', parseError);
+          setJackets([]);
+          await AsyncStorage.setItem(storageKey, JSON.stringify([]));
+        }
       } else {
         setJackets([]);
       }
     } catch (error) {
       console.error('Error loading jackets:', error);
+      setJackets([]);
     } finally {
       setIsLoading(false);
     }
