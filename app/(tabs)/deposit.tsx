@@ -128,7 +128,13 @@ export default function DepositScreen() {
     };
 
     const fullPhoneNumber = `${jacket.countryCode}${jacket.phoneNumber}`;
-    const privacyUrl = `https://rork.app/p/myqt45gzmdli8zqxtr559/privacy-policy?lang=${language}`;
+    
+    const privacyText = language === 'fr'
+      ? `🔒 POLITIQUE DE CONFIDENTIALITÉ MyJacket\n\n📋 Collecte des données\nNous collectons uniquement votre numéro de téléphone, les horodatages d'arrivée et de départ, et un identifiant temporaire (QR code).\n\n🛡️ Sécurité des données\nToutes les données sont chiffrées (AES-256) et stockées de manière sécurisée. Aucune donnée n'est partagée avec des tiers.\n\n⏰ Conservation des données\nVos données personnelles sont automatiquement supprimées 7 jours après le dépôt. Seules des statistiques anonymisées sont conservées.\n\n✅ Vos droits\nVous avez le droit de demander la suppression de vos données à tout moment en contactant privacy@myjacket.fr\n\n📧 Contact: privacy@myjacket.fr\n\nDernière mise à jour: Janvier 2025`
+      : `🔒 MyJacket PRIVACY POLICY\n\n📋 Data Collection\nWe only collect your phone number, arrival and departure timestamps, and a temporary identifier (QR code).\n\n🛡️ Data Security\nAll data is encrypted (AES-256) and stored securely. No data is shared with third parties.\n\n⏰ Data Retention\nYour personal data is automatically deleted 7 days after deposit. Only anonymized statistics are retained.\n\n✅ Your Rights\nYou have the right to request deletion of your data at any time by contacting privacy@myjacket.com\n\n📧 Contact: privacy@myjacket.com\n\nLast updated: January 2025`;
+    
+    const privacyUrl = `data:text/plain;charset=utf-8,${encodeURIComponent(privacyText)}`;
+    
     const message = language === 'fr'
       ? `🎟️ MyJacket - Votre QR code de récupération\n\nCintre n°${jacket.hangerNumber}\n\nVoici votre QR code :\n${jacket.deepLink}\n\nPrésentez ce code au vestiaire pour récupérer votre veste.\n\n📋 Politique de confidentialité:\n${privacyUrl}`
       : `🎟️ MyJacket - Your retrieval QR code\n\nHanger #${jacket.hangerNumber}\n\nHere is your QR code:\n${jacket.deepLink}\n\nPresent this code at the cloakroom to retrieve your jacket.\n\n📋 Privacy Policy:\n${privacyUrl}`;
@@ -227,7 +233,13 @@ export default function DepositScreen() {
     if (!jacket) return;
 
     const fullPhoneNumber = `${jacket.countryCode}${jacket.phoneNumber}`;
-    const privacyUrl = `https://rork.app/p/myqt45gzmdli8zqxtr559/privacy-policy?lang=${language}`;
+    
+    const privacyText = language === 'fr'
+      ? `🔒 POLITIQUE DE CONFIDENTIALITÉ MyJacket\n\n📋 Collecte des données\nNous collectons uniquement votre numéro de téléphone, les horodatages d'arrivée et de départ, et un identifiant temporaire (QR code).\n\n🛡️ Sécurité des données\nToutes les données sont chiffrées (AES-256) et stockées de manière sécurisée. Aucune donnée n'est partagée avec des tiers.\n\n⏰ Conservation des données\nVos données personnelles sont automatiquement supprimées 7 jours après le dépôt. Seules des statistiques anonymisées sont conservées.\n\n✅ Vos droits\nVous avez le droit de demander la suppression de vos données à tout moment en contactant privacy@myjacket.fr\n\n📧 Contact: privacy@myjacket.fr\n\nDernière mise à jour: Janvier 2025`
+      : `🔒 MyJacket PRIVACY POLICY\n\n📋 Data Collection\nWe only collect your phone number, arrival and departure timestamps, and a temporary identifier (QR code).\n\n🛡️ Data Security\nAll data is encrypted (AES-256) and stored securely. No data is shared with third parties.\n\n⏰ Data Retention\nYour personal data is automatically deleted 7 days after deposit. Only anonymized statistics are retained.\n\n✅ Your Rights\nYou have the right to request deletion of your data at any time by contacting privacy@myjacket.com\n\n📧 Contact: privacy@myjacket.com\n\nLast updated: January 2025`;
+    
+    const privacyUrl = `data:text/plain;charset=utf-8,${encodeURIComponent(privacyText)}`;
+    
     const message = language === 'fr'
       ? `🎟️ MyJacket - Votre QR code de récupération\n\nCintre n°${jacket.hangerNumber}\n\nVoici votre QR code :\n${jacket.deepLink}\n\nPrésentez ce code au vestiaire pour récupérer votre veste.\n\n📋 Politique de confidentialité:\n${privacyUrl}`
       : `🎟️ MyJacket - Your retrieval QR code\n\nHanger #${jacket.hangerNumber}\n\nHere is your QR code:\n${jacket.deepLink}\n\nPresent this code at the cloakroom to retrieve your jacket.\n\n📋 Privacy Policy:\n${privacyUrl}`;
