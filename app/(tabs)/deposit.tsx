@@ -129,7 +129,7 @@ export default function DepositScreen() {
 
     const fullPhoneNumber = `${jacket.countryCode}${jacket.phoneNumber}`;
     const privacyUrl = `https://myqt45gzmdli8zqxtr559.rork.app/privacy-policy?lang=${language}`;
-    const message = `🎟️ MyJacket - Votre QR code de récupération\n\nCintre n°${jacket.hangerNumber}\n\nVoici votre QR code :\n${jacket.deepLink}\n\nPrésentez ce code au vestiaire pour récupérer votre veste.\n\n📋 Protection des données\n${privacyUrl}`;
+    const message = `🎟️ MyJacket - Votre QR code de récupération\n\nCintre n°${jacket.hangerNumber}\n\nVoici votre QR code :\n${jacket.deepLink}\n\nPrésentez ce code au vestiaire pour récupérer votre veste.\n\n📋 Politique de confidentialité :\n${privacyUrl}\n\nVos données sont protégées et seront supprimées automatiquement après 7 jours.`;
     
     try {
       if (Platform.OS === 'web') {
@@ -224,7 +224,7 @@ export default function DepositScreen() {
 
     const fullPhoneNumber = `${jacket.countryCode}${jacket.phoneNumber}`;
     const privacyUrl = `https://myqt45gzmdli8zqxtr559.rork.app/privacy-policy?lang=${language}`;
-    const message = `🎟️ MyJacket - Votre QR code de récupération\n\nCintre n°${jacket.hangerNumber}\n\nVoici votre QR code :\n${jacket.deepLink}\n\nPrésentez ce code au vestiaire pour récupérer votre veste.\n\n📋 Protection des données\n${privacyUrl}`;
+    const message = `🎟️ MyJacket - Votre QR code de récupération\n\nCintre n°${jacket.hangerNumber}\n\nVoici votre QR code :\n${jacket.deepLink}\n\nPrésentez ce code au vestiaire pour récupérer votre veste.\n\n📋 Politique de confidentialité :\n${privacyUrl}\n\nVos données sont protégées et seront supprimées automatiquement après 7 jours.`;
     
     try {
       if (Platform.OS === 'web') {
