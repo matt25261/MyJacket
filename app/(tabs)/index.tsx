@@ -109,13 +109,20 @@ export default function DashboardScreen() {
         </View>
 
         <View style={styles.statsGrid}>
-          <View style={[styles.statCard, styles.statCardPrimary]}>
+          <Pressable 
+            style={({ pressed }) => [
+              styles.statCard,
+              styles.statCardPrimary,
+              pressed && styles.statCardPressed
+            ]}
+            onPress={() => router.push('/active-jackets')}
+          >
             <View style={styles.statIconContainer}>
               <Package size={24} color={Colors.dark.primary} />
             </View>
             <Text style={styles.statValue}>{stats.active}</Text>
             <Text style={styles.statLabel}>{t.dashboard.activeJackets}</Text>
-          </View>
+          </Pressable>
 
           <View style={styles.statCard}>
             <View style={styles.statIconContainer}>
@@ -296,6 +303,9 @@ const styles = StyleSheet.create({
   statCardPrimary: {
     backgroundColor: Colors.dark.primary + '15',
     borderColor: Colors.dark.primary + '30',
+  },
+  statCardPressed: {
+    opacity: 0.7,
   },
   statIconContainer: {
     marginBottom: 12,
