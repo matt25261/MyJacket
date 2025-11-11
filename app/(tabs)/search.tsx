@@ -62,6 +62,7 @@ export default function SearchScreen() {
 
   const filteredJackets = jackets.filter(jacket => {
     if (!searchQuery) return false;
+    if (jacket.status === 'retrieved') return false;
     const fullPhone = `${selectedCountry.dialCode}${searchQuery}`;
     const jacketFullPhone = `${jacket.countryCode}${jacket.phoneNumber}`;
     return jacketFullPhone.includes(fullPhone) || jacket.phoneNumber.includes(searchQuery);
