@@ -33,8 +33,8 @@ export default function ActiveJacketsScreen() {
 
   const handleMessage = (phoneNumber: string, countryCode: string) => {
     const message = language === 'fr'
-      ? 'Bonjour, vous avez oublié votre veste dans notre établissement. Merci de venir la récupérer dès que possible.'
-      : 'Hello, you forgot your jacket at our establishment. Please come and pick it up as soon as possible.';
+      ? 'Bonjour,\nIl semble que vous ayez oublié une veste au vestiaire.\nVous pouvez la récupérer à tout moment à l\'accueil en présentant votre QR code.\nBonne journée,'
+      : 'Hello,\nIt seems you forgot a jacket in the cloakroom.\nYou can pick it up at any time at the reception by presenting your QR code.\nHave a nice day,';
     
     const fullNumber = `${countryCode}${phoneNumber}`;
     const smsUrl = `sms:${fullNumber}${Platform.OS === 'ios' ? '&' : '?'}body=${encodeURIComponent(message)}`;
