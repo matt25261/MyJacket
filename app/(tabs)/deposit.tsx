@@ -129,7 +129,7 @@ export default function DepositScreen() {
 
     const fullPhoneNumber = `${jacket.countryCode}${jacket.phoneNumber}`;
     
-    const privacyLink = `exp://192.168.1.1:8081/--/privacy/info?lang=${language}`;
+    const privacyLink = `https://rork.app/p/myqt45gzmdli8zqxtr559/privacy/info?lang=${language}`;
     
     const message = language === 'fr'
       ? `🎟️ MyJacket - Votre QR code de récupération\n\nCintre n°${jacket.hangerNumber}\n\nVoici votre QR code :\n${jacket.deepLink}\n\nPrésentez ce code au vestiaire pour récupérer votre veste.\n\n📋 Informations sur la confidentialité:\n${privacyLink}`
@@ -230,7 +230,7 @@ export default function DepositScreen() {
 
     const fullPhoneNumber = `${jacket.countryCode}${jacket.phoneNumber}`;
     
-    const privacyLink = `exp://192.168.1.1:8081/--/privacy/info?lang=${language}`;
+    const privacyLink = `https://rork.app/p/myqt45gzmdli8zqxtr559/privacy/info?lang=${language}`;
     
     const message = language === 'fr'
       ? `🎟️ MyJacket - Votre QR code de récupération\n\nCintre n°${jacket.hangerNumber}\n\nVoici votre QR code :\n${jacket.deepLink}\n\nPrésentez ce code au vestiaire pour récupérer votre veste.\n\n📋 Informations sur la confidentialité:\n${privacyLink}`
