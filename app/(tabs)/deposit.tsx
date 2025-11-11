@@ -206,7 +206,7 @@ export default function DepositScreen() {
     const jacket = jackets.find(j => j.qrCode === generatedQR);
     if (!jacket) return;
 
-    const privacyUrl = `https://rork.app/p/myqt45gzmdli8zqxtr559/privacy-policy?lang=${language}`;
+    const privacyUrl = `https://rork.app/p/myqt45gzmdli8zqxtr559/privacy/info?lang=${language}`;
     const message = language === 'fr'
       ? `Bonjour,\nIl semble que vous ayez oublié une veste au vestiaire.\nVous pouvez la récupérer à tout moment à l'accueil en présentant votre QR code.\nBonne journée,\n\n🎟️ MyJacket - Votre QR code de récupération\n\nCintre n°${jacket.hangerNumber}\n\nVoici votre QR code :\n${jacket.deepLink}\n\nPrésentez ce code au vestiaire pour récupérer votre veste.\n\n📋 Politique de confidentialité:\n${privacyUrl}`
       : `Hello,\nIt seems you left a jacket at the cloakroom.\nYou can pick it up at any time at the reception by presenting your QR code.\nHave a nice day,\n\n🎟️ MyJacket - Your retrieval QR code\n\nHanger #${jacket.hangerNumber}\n\nHere is your QR code:\n${jacket.deepLink}\n\nPresent this code at the cloakroom to retrieve your jacket.\n\n📋 Privacy Policy:\n${privacyUrl}`;
