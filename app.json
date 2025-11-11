@@ -26,7 +26,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "app.rork.vestiqr-gestion-vestiaire",
+      "package": "app.rork.myjacjet",
       "permissions": [
         "CAMERA",
         "RECORD_AUDIO",
