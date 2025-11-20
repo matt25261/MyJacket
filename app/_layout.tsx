@@ -9,6 +9,7 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import Colors from "@/constants/colors";
 import { trpc, trpcClient } from "@/lib/trpc";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -63,7 +64,9 @@ export default function RootLayout() {
           <AuthProvider>
             <JacketProvider>
               <GestureHandlerRootView style={{ flex: 1 }}>
-                <RootLayoutNav />
+                <ErrorBoundary>
+                  <RootLayoutNav />
+                </ErrorBoundary>
               </GestureHandlerRootView>
             </JacketProvider>
           </AuthProvider>
