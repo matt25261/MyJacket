@@ -1,5 +1,4 @@
-import { View, Text, StyleSheet, TextInput, Pressable, ScrollView, Alert, Platform, Modal, FlatList, Keyboard, KeyboardAvoidingView, PanResponder, Share } from 'react-native';
-import * as Linking from 'expo-linking';
+import { View, Text, StyleSheet, TextInput, Pressable, ScrollView, Alert, Platform, Modal, FlatList, Keyboard, KeyboardAvoidingView, PanResponder, Share, Linking } from 'react-native';
 import { Stack } from 'expo-router';
 import { useState, useEffect, useRef } from 'react';
 import { Package, Phone, Hash, CheckCircle, ChevronDown, Search, X, Share2, MessageCircle, Copy, AlertCircle } from 'lucide-react-native';
@@ -130,13 +129,11 @@ export default function DepositScreen() {
 
     const fullPhoneNumber = `${jacket.countryCode}${jacket.phoneNumber}`;
     
-    const privacyInfo = language === 'fr'
-      ? `📋 CONFIDENTIALITÉ\nVotre numéro est utilisé uniquement pour l'envoi de ce QR code. Vos données sont chiffrées (AES-256) et seront automatiquement supprimées après 7 jours. Aucun partage avec des tiers. Contact : privacy@myjacket.fr`
-      : `📋 PRIVACY\nYour number is used only to send this QR code. Your data is encrypted (AES-256) and will be automatically deleted after 7 days. No sharing with third parties. Contact: privacy@myjacket.com`;
+    const privacyLink = `https://rork.app/p/myqt45gzmdli8zqxtr559/privacy/info?lang=${language}`;
     
     const message = language === 'fr'
-      ? `🎟️ MyJacket - Votre QR code de récupération\n\nCintre n°${jacket.hangerNumber}\n\nVoici votre QR code :\n${jacket.deepLink}\n\nPrésentez ce code au vestiaire pour récupérer votre veste.\n\n${privacyInfo}`
-      : `🎟️ MyJacket - Your retrieval QR code\n\nHanger #${jacket.hangerNumber}\n\nHere is your QR code:\n${jacket.deepLink}\n\nPresent this code at the cloakroom to retrieve your jacket.\n\n${privacyInfo}`;
+      ? `🎟️ MyJacket - Votre QR code de récupération\n\nCintre n°${jacket.hangerNumber}\n\nVoici votre QR code :\n${jacket.deepLink}\n\nPrésentez ce code au vestiaire pour récupérer votre veste.\n\n📋 Informations sur la confidentialité:\n${privacyLink}`
+      : `🎟️ MyJacket - Your retrieval QR code\n\nHanger #${jacket.hangerNumber}\n\nHere is your QR code:\n${jacket.deepLink}\n\nPresent this code at the cloakroom to retrieve your jacket.\n\n📋 Privacy information:\n${privacyLink}`;
     
     try {
       if (Platform.OS === 'web') {
@@ -209,12 +206,10 @@ export default function DepositScreen() {
     const jacket = jackets.find(j => j.qrCode === generatedQR);
     if (!jacket) return;
 
-    const privacyInfo = language === 'fr'
-      ? `📋 CONFIDENTIALITÉ\nVotre numéro est utilisé uniquement pour l'envoi de ce QR code. Vos données sont chiffrées (AES-256) et seront automatiquement supprimées après 7 jours. Aucun partage avec des tiers. Contact : privacy@myjacket.fr`
-      : `📋 PRIVACY\nYour number is used only to send this QR code. Your data is encrypted (AES-256) and will be automatically deleted after 7 days. No sharing with third parties. Contact: privacy@myjacket.com`;
+    const privacyUrl = `https://rork.app/p/myqt45gzmdli8zqxtr559/privacy/info?lang=${language}`;
     const message = language === 'fr'
-      ? `Bonjour,\nIl semble que vous ayez oublié une veste au vestiaire.\nVous pouvez la récupérer à tout moment à l'accueil en présentant votre QR code.\nBonne journée,\n\n🎟️ MyJacket - Votre QR code de récupération\n\nCintre n°${jacket.hangerNumber}\n\nVoici votre QR code :\n${jacket.deepLink}\n\nPrésentez ce code au vestiaire pour récupérer votre veste.\n\n${privacyInfo}`
-      : `Hello,\nIt seems you left a jacket at the cloakroom.\nYou can pick it up at any time at the reception by presenting your QR code.\nHave a nice day,\n\n🎟️ MyJacket - Your retrieval QR code\n\nHanger #${jacket.hangerNumber}\n\nHere is your QR code:\n${jacket.deepLink}\n\nPresent this code at the cloakroom to retrieve your jacket.\n\n${privacyInfo}`;
+      ? `Bonjour,\nIl semble que vous ayez oublié une veste au vestiaire.\nVous pouvez la récupérer à tout moment à l'accueil en présentant votre QR code.\nBonne journée,\n\n🎟️ MyJacket - Votre QR code de récupération\n\nCintre n°${jacket.hangerNumber}\n\nVoici votre QR code :\n${jacket.deepLink}\n\nPrésentez ce code au vestiaire pour récupérer votre veste.\n\n📋 Politique de confidentialité:\n${privacyUrl}`
+      : `Hello,\nIt seems you left a jacket at the cloakroom.\nYou can pick it up at any time at the reception by presenting your QR code.\nHave a nice day,\n\n🎟️ MyJacket - Your retrieval QR code\n\nHanger #${jacket.hangerNumber}\n\nHere is your QR code:\n${jacket.deepLink}\n\nPresent this code at the cloakroom to retrieve your jacket.\n\n📋 Privacy Policy:\n${privacyUrl}`;
 
     try {
       await Share.share({
@@ -235,13 +230,11 @@ export default function DepositScreen() {
 
     const fullPhoneNumber = `${jacket.countryCode}${jacket.phoneNumber}`;
     
-    const privacyInfo = language === 'fr'
-      ? `📋 CONFIDENTIALITÉ\nVotre numéro est utilisé uniquement pour l'envoi de ce QR code. Vos données sont chiffrées (AES-256) et seront automatiquement supprimées après 7 jours. Aucun partage avec des tiers. Contact : privacy@myjacket.fr`
-      : `📋 PRIVACY\nYour number is used only to send this QR code. Your data is encrypted (AES-256) and will be automatically deleted after 7 days. No sharing with third parties. Contact: privacy@myjacket.com`;
+    const privacyLink = `https://rork.app/p/myqt45gzmdli8zqxtr559/privacy/info?lang=${language}`;
     
     const message = language === 'fr'
-      ? `🎟️ MyJacket - Votre QR code de récupération\n\nCintre n°${jacket.hangerNumber}\n\nVoici votre QR code :\n${jacket.deepLink}\n\nPrésentez ce code au vestiaire pour récupérer votre veste.\n\n${privacyInfo}`
-      : `🎟️ MyJacket - Your retrieval QR code\n\nHanger #${jacket.hangerNumber}\n\nHere is your QR code:\n${jacket.deepLink}\n\nPresent this code at the cloakroom to retrieve your jacket.\n\n${privacyInfo}`;
+      ? `🎟️ MyJacket - Votre QR code de récupération\n\nCintre n°${jacket.hangerNumber}\n\nVoici votre QR code :\n${jacket.deepLink}\n\nPrésentez ce code au vestiaire pour récupérer votre veste.\n\n📋 Informations sur la confidentialité:\n${privacyLink}`
+      : `🎟️ MyJacket - Your retrieval QR code\n\nHanger #${jacket.hangerNumber}\n\nHere is your QR code:\n${jacket.deepLink}\n\nPresent this code at the cloakroom to retrieve your jacket.\n\n📋 Privacy information:\n${privacyLink}`;
     
     try {
       if (Platform.OS === 'web') {
